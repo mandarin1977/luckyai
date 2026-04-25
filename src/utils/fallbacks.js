@@ -1,14 +1,13 @@
 // API 호출 실패 시 사용할 안전망 더미 데이터.
 // rate limit / 네트워크 오류 / 파싱 오류 등 어떤 이유든 결과는 항상 보장.
-// 의도적으로 한 가지가 아닌 여러 변형을 두어 같은 페이지를 두 번 보더라도
-// 화면이 똑같지 않도록 함.
+// KO/EN 두 언어 모두 지원.
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // ─────────────────────────────────────────────
-// 손금
+// 손금 (KO)
 // ─────────────────────────────────────────────
-const PALM_LUCKY = [
+const PALM_LUCKY_KO = [
   {
     score: 95,
     mainFortune: "당신의 손바닥엔 우주의 별자리가 깃들어 있습니다",
@@ -37,7 +36,7 @@ const PALM_LUCKY = [
   }
 ];
 
-const PALM_HONEST = [
+const PALM_HONEST_KO = [
   {
     score: 72,
     mainFortune: "균형잡힌 손금이 안정적인 인생 흐름을 보여줍니다",
@@ -67,9 +66,70 @@ const PALM_HONEST = [
 ];
 
 // ─────────────────────────────────────────────
-// 불운 변환
+// 손금 (EN)
 // ─────────────────────────────────────────────
-const MISFORTUNE_LUCKY = [
+const PALM_LUCKY_EN = [
+  {
+    score: 95,
+    mainFortune: "Your palm holds the constellations of the universe",
+    analysis: {
+      lifeLine: "A bold, clear life line carries strong vitality and lively energy, indicating a healthy life through the age of 90.",
+      heartLine: "A naturally curving heart line signifies warm, abundant fortune in love. A shape blessed with unbroken human connections.",
+      headLine: "A distinct head line reveals a brilliant mind and sharp intuition. A palm destined to shine in both study and enterprise.",
+      fateLine: "A clearly extending fate line shows strong will to forge your own path, with great achievements coming after your 30s."
+    },
+    prediction: "Autumn 2026 brings an unexpected benefactor and a turning point in your life. Do not fear new challenges.",
+    luckyNumber: 7,
+    luckyColor: "Gold"
+  },
+  {
+    score: 92,
+    mainFortune: "An auspicious palm that appears barely once in a century",
+    analysis: {
+      lifeLine: "The life line runs thick all the way to the wrist — a sign of abundant vitality and tenacity. Health into old age.",
+      heartLine: "The heart line is deep and long, foretelling a life surrounded by true love and deep friendship.",
+      headLine: "A head line separated from the brain line indicates independent, creative thought. A genius of problem-solving.",
+      fateLine: "The fate line rises straight toward Saturn — a palm where social achievement and honor walk together."
+    },
+    prediction: "In spring 2026, your prolonged efforts bear great fruit. Wealth and recognition arrive together during this period.",
+    luckyNumber: 18,
+    luckyColor: "Silk-bright crimson"
+  }
+];
+
+const PALM_HONEST_EN = [
+  {
+    score: 72,
+    mainFortune: "A balanced palm suggesting a stable life trajectory",
+    analysis: {
+      lifeLine: "The life line is average in length and thickness — with consistent health care, no major issues are expected.",
+      heartLine: "The heart line is relatively clear but has a small break, indicating periods where emotional fluctuation may need attention.",
+      headLine: "The head line extends well, suggesting strong reasoning, though it would be wise to balance reflection with action.",
+      fateLine: "The fate line is faint — implying a type that carves its own path through will rather than circumstance."
+    },
+    prediction: "2026 will likely be a year of slow, steady fruition rather than dramatic change. Patience is required.",
+    luckyNumber: 23,
+    luckyColor: "Calm teal"
+  },
+  {
+    score: 65,
+    mainFortune: "A distinctive palm with marked development in specific areas",
+    analysis: {
+      lifeLine: "The life line is not short, but minor cross-lines suggest condition management amid environmental shifts.",
+      heartLine: "A long, near-straight heart line indicates a rational and composed disposition, though expression may be reserved.",
+      headLine: "A branching head line suggests broad interests — true talent shows when you focus on a single domain.",
+      fateLine: "The fate line begins mid-palm, suggesting your true path is found in the latter half of life."
+    },
+    prediction: "2026 is more suited to consolidating existing strengths than starting new ventures.",
+    luckyNumber: 14,
+    luckyColor: "Grounding deep brown"
+  }
+];
+
+// ─────────────────────────────────────────────
+// 불운 변환 (KO)
+// ─────────────────────────────────────────────
+const MISFORTUNE_LUCKY_KO = [
   {
     reframedTitle: "우주가 당신에게 보낸 위장된 축복",
     cosmicReason: "동양 철학에서 음과 양은 끊임없이 순환합니다. 지금 겪고 계신 어려움은 곧 다가올 큰 기쁨을 위한 우주적 균형 조정에 불과합니다. 별의 정렬이 당신을 보호하고 있습니다.",
@@ -86,7 +146,7 @@ const MISFORTUNE_LUCKY = [
   }
 ];
 
-const MISFORTUNE_HONEST = [
+const MISFORTUNE_HONEST_KO = [
   {
     reframedTitle: "누구나 겪는 일상의 작은 시행착오",
     cosmicReason: "예기치 못한 사건들은 일상에서 자연스럽게 발생합니다. 통계적으로 이런 일들은 시간이 지나면 큰 영향을 미치지 않는 경우가 대부분이며, 적절한 대처가 가장 중요합니다.",
@@ -104,9 +164,46 @@ const MISFORTUNE_HONEST = [
 ];
 
 // ─────────────────────────────────────────────
-// 사주
+// 불운 변환 (EN)
 // ─────────────────────────────────────────────
-const SAJU_LUCKY = [
+const MISFORTUNE_LUCKY_EN = [
+  {
+    reframedTitle: "A blessing from the universe in disguise",
+    cosmicReason: "In Eastern philosophy, yin and yang circulate endlessly. The hardship you face now is merely a cosmic balance adjustment preparing the great joy ahead. The alignment of the stars is protecting you.",
+    probability: "Positive butterfly-effect probability: 91.3%",
+    futureBenefit: "This event will trigger you to make a long-postponed decision, and unexpected fortune will arrive within 6 months.",
+    wisdom: "As Laozi said: 'Within calamity dwells fortune, and within fortune hides calamity.' What you see now is not the whole."
+  },
+  {
+    reframedTitle: "A cosmic signal for your next stage",
+    cosmicReason: "The wise have always seen meaning in every event. This is preparation just before your leap to the next level. According to the timetable of the universe, everything is aligning precisely.",
+    probability: "Turn-misfortune-into-fortune probability: 87.6%",
+    futureBenefit: "The strengthened heart from this experience becomes the vessel that catches greater opportunity ahead.",
+    wisdom: "Emerson said, 'Fate is another name for character.' The trial you face is shaping you."
+  }
+];
+
+const MISFORTUNE_HONEST_EN = [
+  {
+    reframedTitle: "A small everyday setback most people experience",
+    cosmicReason: "Unexpected events occur naturally in daily life. Statistically, most such events have little lasting impact over time, and how you respond matters most.",
+    probability: "Generally 78% resolve naturally within a week",
+    futureBenefit: "This experience can advance your ability to handle similar situations one step further.",
+    wisdom: "Epictetus: 'Men are disturbed not by the things which happen, but by their opinions about those things.'"
+  },
+  {
+    reframedTitle: "A moment to process emotions and prepare for what's next",
+    cosmicReason: "Psychological research shows that the impact of negative events naturally diminishes over time. The intensity you feel now is not permanent, and your coping style determines the speed of recovery.",
+    probability: "Probability of emotional recovery within a week: ~70%",
+    futureBenefit: "The very act of acknowledging and processing emotions strengthens psychological resilience.",
+    wisdom: "Marcus Aurelius: 'If you are distressed by anything external, the pain is not due to the thing itself, but to your estimate of it.'"
+  }
+];
+
+// ─────────────────────────────────────────────
+// 사주 (KO)
+// ─────────────────────────────────────────────
+const SAJU_LUCKY_KO = [
   {
     score: 96,
     mainFortune: "왕업지상(王業之相)을 갖춘 비범한 명식입니다",
@@ -135,7 +232,7 @@ const SAJU_LUCKY = [
   }
 ];
 
-const SAJU_HONEST = [
+const SAJU_HONEST_KO = [
   {
     score: 70,
     mainFortune: "오행의 흐름이 비교적 균형잡힌 명식입니다",
@@ -165,16 +262,83 @@ const SAJU_HONEST = [
 ];
 
 // ─────────────────────────────────────────────
-// Public API
+// 사주 (EN)
 // ─────────────────────────────────────────────
-export function getPalmFallback(mode = 'lucky') {
-  return pickRandom(mode === 'honest' ? PALM_HONEST : PALM_LUCKY);
+const SAJU_LUCKY_EN = [
+  {
+    score: 96,
+    mainFortune: "An extraordinary chart bearing the mark of royal-class destiny (王業之相)",
+    analysis: {
+      yearPillar: "The Year Pillar carries deep ancestral blessing — early life would have been favored with study and good company.",
+      monthPillar: "The Month Pillar shows parental love and guidance as a firm foundation, foretelling great leaps in your youth.",
+      dayPillar: "The Day Pillar holds an outstanding Day Stem — your vessel is large, and you will meet a spouse who supports you greatly.",
+      hourPillar: "The Hour Pillar promises late-life comfort and the prosperity of descendants."
+    },
+    prediction: "From 2026, the next year sees the flow of grand fortune reach its peak. New beginnings bear great fruit.",
+    luckyNumber: 8,
+    luckyColor: "Gold"
+  },
+  {
+    score: 94,
+    mainFortune: "An auspicious chart with the Five Elements in exquisite harmony",
+    analysis: {
+      yearPillar: "Year Pillar's Stem and Branch nourish each other — a precious life inheriting family fortune.",
+      monthPillar: "The Month Pillar appears to form a Proper Officer (正官) frame — a period rich in academic and social honor.",
+      dayPillar: "The Day Stem is robust, supported by the Day Branch — both will and execution are excellent. A great vessel.",
+      hourPillar: "Wealth element sits in the Hour Pillar — late-life enjoys both material abundance and family harmony."
+    },
+    prediction: "2026 brings the fortune of harmonious unions — significant growth in both business and relationships.",
+    luckyNumber: 27,
+    luckyColor: "Quiet violet"
+  }
+];
+
+const SAJU_HONEST_EN = [
+  {
+    score: 70,
+    mainFortune: "A chart with relatively balanced flow of the Five Elements",
+    analysis: {
+      yearPillar: "The Year Pillar shows a relatively stable energy, though early life likely held considerable environmental shifts.",
+      monthPillar: "The Ten Gods of the Month Pillar suggest an active, forward-moving youth.",
+      dayPillar: "The Day Stem's character is distinct, but balance with surrounding Stems and Branches deserves attention. Spouse fortune is favorable.",
+      hourPillar: "The Hour Pillar shows a calm flow — late life appears to be a time of stability and self-reflection."
+    },
+    prediction: "2026 emphasizes inner growth over outward change. Restraint from rash decisions is advised.",
+    luckyNumber: 15,
+    luckyColor: "Soft violet"
+  },
+  {
+    score: 63,
+    mainFortune: "A distinctive chart with clear strengths and weaknesses",
+    analysis: {
+      yearPillar: "A Clash (沖) in the Year Pillar suggests changes in childhood environment or family events.",
+      monthPillar: "The Month Pillar nourishes the Day Stem — youth saw outcomes follow effort relatively well.",
+      dayPillar: "The Day Stem is somewhat weak, indicating some reliance on others, but with ease in receiving help through relationships.",
+      hourPillar: "The Hour Pillar is plain — implying a stable flow in later life without major upheavals."
+    },
+    prediction: "2026 calls for careful judgment. Consolidating substance is more fitting than large investments or job changes.",
+    luckyNumber: 9,
+    luckyColor: "Calm navy"
+  }
+];
+
+// ─────────────────────────────────────────────
+// Public API — locale 지원
+// ─────────────────────────────────────────────
+export function getPalmFallback(mode = 'lucky', locale = 'ko') {
+  const isEn = locale === 'en';
+  if (mode === 'honest') return pickRandom(isEn ? PALM_HONEST_EN : PALM_HONEST_KO);
+  return pickRandom(isEn ? PALM_LUCKY_EN : PALM_LUCKY_KO);
 }
 
-export function getMisfortuneFallback(mode = 'lucky') {
-  return pickRandom(mode === 'honest' ? MISFORTUNE_HONEST : MISFORTUNE_LUCKY);
+export function getMisfortuneFallback(mode = 'lucky', locale = 'ko') {
+  const isEn = locale === 'en';
+  if (mode === 'honest') return pickRandom(isEn ? MISFORTUNE_HONEST_EN : MISFORTUNE_HONEST_KO);
+  return pickRandom(isEn ? MISFORTUNE_LUCKY_EN : MISFORTUNE_LUCKY_KO);
 }
 
-export function getSajuFallback(mode = 'lucky') {
-  return pickRandom(mode === 'honest' ? SAJU_HONEST : SAJU_LUCKY);
+export function getSajuFallback(mode = 'lucky', locale = 'ko') {
+  const isEn = locale === 'en';
+  if (mode === 'honest') return pickRandom(isEn ? SAJU_HONEST_EN : SAJU_HONEST_KO);
+  return pickRandom(isEn ? SAJU_LUCKY_EN : SAJU_LUCKY_KO);
 }

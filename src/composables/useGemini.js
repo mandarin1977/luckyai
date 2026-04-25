@@ -1,22 +1,16 @@
-import {
-  PALM_READING_PROMPT,
-  PALM_READING_HONEST_PROMPT,
-  MISFORTUNE_PROMPT,
-  MISFORTUNE_HONEST_PROMPT,
-  SAJU_PROMPT,
-  SAJU_HONEST_PROMPT
-} from '../utils/prompts';
+import { getPromptByLocale } from '../utils/prompts';
 import {
   getPalmFallback,
   getMisfortuneFallback,
   getSajuFallback
 } from '../utils/fallbacks';
+import { useLocale } from './useLocale';
 
 export function useGemini() {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const { locale } = useLocale();
 
-  // API 호출 시도. 실패 시 null 반환 (호출자가 fallback 처리).
   const callGemini = async (contents) => {
     try {
       const response = await fetch(endpoint, {
@@ -50,32 +44,27 @@ export function useGemini() {
   };
 
   const analyzePalm = async (imageBase64, mode = 'lucky') => {
-    const prompt = mode === 'honest' ? PALM_READING_HONEST_PROMPT : PALM_READING_PROMPT;
+    const prompt = getPromptByLocale('palm', mode, locale.value);
     const contents = [{
       parts: [
         { text: prompt },
-        {
-          inline_data: {
-            mime_type: 'image/jpeg',
-            data: imageBase64
-          }
-        }
+        { inline_data: { mime_type: 'image/jpeg', data: imageBase64 } }
       ]
     }];
     const result = await callGemini(contents);
     return result
       ? { data: result, isFallback: false }
-      : { data: getPalmFallback(mode), isFallback: true };
+      : { data: getPalmFallback(mode, locale.value), isFallback: true };
   };
 
   const translateMisfortune = async (userInput, mode = 'lucky') => {
-    const template = mode === 'honest' ? MISFORTUNE_HONEST_PROMPT : MISFORTUNE_PROMPT;
+    const template = getPromptByLocale('misfortune', mode, locale.value);
     const prompt = template.replace('{userInput}', userInput);
     const contents = [{ parts: [{ text: prompt }] }];
     const result = await callGemini(contents);
     return result
       ? { data: result, isFallback: false }
-      : { data: getMisfortuneFallback(mode), isFallback: true };
+      : { data: getMisfortuneFallback(mode, locale.value), isFallback: true };
   };
 
   /**
@@ -84,8 +73,15 @@ export function useGemini() {
    * @param {'lucky'|'honest'} mode
    */
   const analyzeSaju = async (saju, gender, mode = 'lucky') => {
-    const template = mode === 'honest' ? SAJU_HONEST_PROMPT : SAJU_PROMPT;
-    const pillarDisplay = (p) => (p ? p.display : '(시간 미상 — 시주 생략)');
+    const template = getPromptByLocale('saju', mode, locale.value);
+    const pillarDisplay = (p) => {
+      if (p) return p.display;
+      return locale.value === 'en' ? '(Hour unknown — pillar omitted)' : '(시간 미상 — 시주 생략)';
+    };
+
+    const elementDisplay = locale.value === 'en'
+      ? translateElement(saju.mainElement)
+      : saju.mainElement;
 
     const prompt = template
       .replaceAll('{yearPillar}', pillarDisplay(saju.yearPillar))
@@ -93,15 +89,24 @@ export function useGemini() {
       .replaceAll('{dayPillar}', pillarDisplay(saju.dayPillar))
       .replaceAll('{hourPillar}', pillarDisplay(saju.hourPillar))
       .replaceAll('{dayStem}', `${saju.dayStem.hanzi}(${saju.dayStem.korean})`)
-      .replaceAll('{mainElement}', saju.mainElement)
-      .replaceAll('{gender}', gender);
+      .replaceAll('{mainElement}', elementDisplay)
+      .replaceAll('{gender}', genderDisplay(gender, locale.value));
 
     const contents = [{ parts: [{ text: prompt }] }];
     const result = await callGemini(contents);
     return result
       ? { data: result, isFallback: false }
-      : { data: getSajuFallback(mode), isFallback: true };
+      : { data: getSajuFallback(mode, locale.value), isFallback: true };
   };
 
   return { analyzePalm, translateMisfortune, analyzeSaju };
+}
+
+function translateElement(ko) {
+  return { '목': 'Wood', '화': 'Fire', '토': 'Earth', '금': 'Metal', '수': 'Water' }[ko] || ko;
+}
+
+function genderDisplay(g, locale) {
+  if (locale === 'en') return g === '남' ? 'Male' : 'Female';
+  return g;
 }
