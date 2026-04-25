@@ -34,8 +34,9 @@
           </button>
         </div>
 
-        <div class="text-center mt-lg">
+        <div class="picker-footer text-center mt-lg">
           <button class="btn-text" @click="handleImageReset">← 사진 다시 올리기</button>
+          <router-link to="/" class="btn-text">🏠 메인으로</router-link>
         </div>
       </div>
 
@@ -110,6 +111,7 @@
             {{ mode === 'lucky' ? '🔮 전통 해석도 보기' : '🍀 LuckyAI 해석도 보기' }}
           </button>
           <button class="btn btn-secondary" @click="reset">다시하기</button>
+          <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
         </div>
       </div>
     </div>

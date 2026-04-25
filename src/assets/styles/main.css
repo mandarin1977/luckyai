@@ -127,6 +127,14 @@ button {
   }
 }
 
+/* Picker footer: back + home text links */
+.picker-footer {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
