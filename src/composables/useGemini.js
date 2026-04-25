@@ -1,4 +1,9 @@
-import { PALM_READING_PROMPT, MISFORTUNE_PROMPT } from '../utils/prompts';
+import {
+  PALM_READING_PROMPT,
+  PALM_READING_HONEST_PROMPT,
+  MISFORTUNE_PROMPT,
+  MISFORTUNE_HONEST_PROMPT
+} from '../utils/prompts';
 
 export function useGemini() {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -33,10 +38,11 @@ export function useGemini() {
     }
   };
 
-  const analyzePalm = async (imageBase64) => {
+  const analyzePalm = async (imageBase64, mode = 'lucky') => {
+    const prompt = mode === 'honest' ? PALM_READING_HONEST_PROMPT : PALM_READING_PROMPT;
     const contents = [{
       parts: [
-        { text: PALM_READING_PROMPT },
+        { text: prompt },
         {
           inline_data: {
             mime_type: 'image/jpeg',
@@ -48,8 +54,9 @@ export function useGemini() {
     return callGemini(contents);
   };
 
-  const translateMisfortune = async (userInput) => {
-    const prompt = MISFORTUNE_PROMPT.replace('{userInput}', userInput);
+  const translateMisfortune = async (userInput, mode = 'lucky') => {
+    const template = mode === 'honest' ? MISFORTUNE_HONEST_PROMPT : MISFORTUNE_PROMPT;
+    const prompt = template.replace('{userInput}', userInput);
     const contents = [{
       parts: [
         { text: prompt }

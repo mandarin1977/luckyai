@@ -6,28 +6,51 @@
     </div>
 
     <div class="content-wrapper fade-in-up delay-1">
-      <!-- 업로더 영역 -->
+      <!-- 1단계: 업로더 -->
       <ImageUploader
-        v-if="!result && !isLoading"
+        v-if="stage === 'upload'"
         @image-ready="handleImageReady"
         @reset="handleImageReset"
       />
 
-      <!-- 분석 버튼 영역 -->
-      <div v-if="imageBase64 && !result && !isLoading" class="action-area text-center mt-lg">
-        <button class="btn btn-primary btn-large" @click="startAnalysis">
-          ✨ 내 운명 확인하기
-        </button>
+      <!-- 2단계: 모드 선택 -->
+      <div v-if="stage === 'mode'" class="mode-picker">
+        <h2 class="picker-title text-center">어떤 해석을 원하시나요?</h2>
+        <p class="picker-subtitle text-center">같은 손금, 두 가지 관점</p>
+
+        <div class="mode-cards">
+          <button class="mode-card mode-lucky" @click="startAnalysis('lucky')">
+            <div class="mode-icon">🍀</div>
+            <h3>LuckyAI 모드</h3>
+            <p>어떤 손금이든 무조건<br />길조로 재해석합니다</p>
+            <span class="mode-badge">재치 ∙ 긍정</span>
+          </button>
+
+          <button class="mode-card mode-honest" @click="startAnalysis('honest')">
+            <div class="mode-icon">🔮</div>
+            <h3>전통 해석 모드</h3>
+            <p>동양 손금학 원리대로<br />가감없이 해석합니다</p>
+            <span class="mode-badge">학문 ∙ 객관</span>
+          </button>
+        </div>
+
+        <div class="text-center mt-lg">
+          <button class="btn-text" @click="handleImageReset">← 사진 다시 올리기</button>
+        </div>
       </div>
 
-      <!-- 로딩 영역 -->
-      <div v-if="isLoading" class="loading-area text-center">
+      <!-- 3단계: 로딩 -->
+      <div v-if="stage === 'loading'" class="loading-area text-center">
         <div class="spinner"></div>
         <p class="loading-text">{{ loadingMessage }}</p>
       </div>
 
-      <!-- 결과 카드 -->
-      <div v-if="result" class="result-card fade-in-up">
+      <!-- 4단계: 결과 -->
+      <div v-if="stage === 'result' && result" class="result-card fade-in-up">
+        <div class="result-mode-badge" :class="`badge-${mode}`">
+          {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🔮 전통 해석 모드' }}
+        </div>
+
         <div class="score-ring">
           <svg viewBox="0 0 36 36" class="circular-chart">
             <path class="circle-bg"
@@ -44,9 +67,9 @@
             <text x="18" y="20.35" class="percentage">{{ result.score }}점</text>
           </svg>
         </div>
-        
+
         <h2 class="main-fortune text-accent text-center">{{ result.mainFortune }}</h2>
-        
+
         <div class="analysis-grid">
           <div class="analysis-item">
             <h4>생명선</h4>
@@ -67,22 +90,25 @@
         </div>
 
         <div class="prediction-box">
-          <h3>🌟 향후 1년 예언</h3>
+          <h3>{{ mode === 'lucky' ? '🌟 향후 1년 예언' : '📖 향후 1년 전망' }}</h3>
           <p>{{ result.prediction }}</p>
         </div>
 
         <div class="lucky-items">
           <div class="lucky-item">
-            <span class="label">행운의 숫자</span>
+            <span class="label">{{ mode === 'lucky' ? '행운의 숫자' : '추천 숫자' }}</span>
             <span class="value">{{ result.luckyNumber }}</span>
           </div>
           <div class="lucky-item">
-            <span class="label">행운의 색상</span>
+            <span class="label">{{ mode === 'lucky' ? '행운의 색상' : '어울리는 색상' }}</span>
             <span class="value">{{ result.luckyColor }}</span>
           </div>
         </div>
 
         <div class="action-group mt-lg text-center">
+          <button class="btn btn-secondary" @click="tryOtherMode">
+            {{ mode === 'lucky' ? '🔮 전통 해석도 보기' : '🍀 LuckyAI 해석도 보기' }}
+          </button>
           <button class="btn btn-secondary" @click="reset">다시하기</button>
         </div>
       </div>
@@ -97,36 +123,56 @@ import { useGemini } from '../composables/useGemini';
 
 const { analyzePalm } = useGemini();
 
-// 임시 상태
+const stage = ref('upload'); // 'upload' | 'mode' | 'loading' | 'result'
 const imageBase64 = ref(null);
-const isLoading = ref(false);
 const result = ref(null);
+const mode = ref('lucky');
 const loadingMessage = ref('우주의 기운을 모으는 중...');
+
+const loadingMessagesLucky = [
+  '우주의 기운을 모으는 중...',
+  '별의 정렬을 확인하는 중...',
+  '대길의 기운을 해석하는 중...'
+];
+const loadingMessagesHonest = [
+  '손금의 결을 살피는 중...',
+  '전통 손금학 원리를 대조하는 중...',
+  '관찰 결과를 정리하는 중...'
+];
 
 const handleImageReady = (base64) => {
   imageBase64.value = base64;
+  stage.value = 'mode';
 };
 
 const handleImageReset = () => {
   imageBase64.value = null;
+  stage.value = 'upload';
 };
 
-const startAnalysis = async () => {
-  isLoading.value = true;
-  loadingMessage.value = '별의 정렬을 확인하는 중...';
-  
+const startAnalysis = async (selectedMode) => {
+  mode.value = selectedMode;
+  stage.value = 'loading';
+  const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
+  loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
+
   try {
-    result.value = await analyzePalm(imageBase64.value);
+    result.value = await analyzePalm(imageBase64.value, selectedMode);
+    stage.value = 'result';
   } catch (error) {
     alert('운명의 기운이 잠시 흩어졌습니다. 다시 시도해주세요.');
-  } finally {
-    isLoading.value = false;
+    stage.value = 'mode';
   }
+};
+
+const tryOtherMode = () => {
+  startAnalysis(mode.value === 'lucky' ? 'honest' : 'lucky');
 };
 
 const reset = () => {
   imageBase64.value = null;
   result.value = null;
+  stage.value = 'upload';
 };
 </script>
 
@@ -159,9 +205,113 @@ const reset = () => {
   padding-bottom: var(--spacing-2xl);
 }
 
-.btn-large {
-  font-size: 1.25rem;
-  padding: 1rem 2.5rem;
+/* Mode Picker */
+.mode-picker {
+  padding: var(--spacing-lg) 0;
+}
+
+.picker-title {
+  font-size: 1.6rem;
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-xs);
+}
+
+.picker-subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+  font-size: 1rem;
+}
+
+.mode-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 600px) {
+  .mode-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.mode-card {
+  background: rgba(15, 14, 46, 0.6);
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 215, 0, 0.15);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  color: var(--color-text);
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.mode-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+}
+
+.mode-card.mode-honest:hover {
+  border-color: #9fb8ff;
+  box-shadow: 0 8px 30px rgba(159, 184, 255, 0.25);
+}
+
+.mode-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+}
+
+.mode-card h3 {
+  font-size: 1.3rem;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.mode-card.mode-honest h3 {
+  color: #9fb8ff;
+}
+
+.mode-card p {
+  font-size: 0.95rem;
+  color: rgba(245, 230, 211, 0.85);
+  line-height: 1.5;
+}
+
+.mode-badge {
+  display: inline-block;
+  margin-top: var(--spacing-xs);
+  background: rgba(255, 215, 0, 0.1);
+  color: var(--color-accent);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mode-card.mode-honest .mode-badge {
+  background: rgba(159, 184, 255, 0.12);
+  color: #9fb8ff;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+.btn-text:hover {
+  color: var(--color-accent);
 }
 
 /* Loading Area */
@@ -196,6 +346,29 @@ const reset = () => {
   border-radius: var(--border-radius-xl);
   padding: var(--spacing-2xl);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.result-mode-badge {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.result-mode-badge.badge-lucky {
+  background: rgba(255, 215, 0, 0.15);
+  color: var(--color-accent);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.result-mode-badge.badge-honest {
+  background: rgba(159, 184, 255, 0.12);
+  color: #9fb8ff;
+  border: 1px solid rgba(159, 184, 255, 0.3);
 }
 
 /* Score Ring */
@@ -314,6 +487,13 @@ const reset = () => {
   background: rgba(255, 215, 0, 0.1);
   padding: 0.2rem 1rem;
   border-radius: 20px;
+}
+
+.action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
 }
 
 /* Animations */
