@@ -18,6 +18,11 @@ const router = createRouter({
       path: '/misfortune',
       name: 'misfortune',
       component: () => import('../views/MisfortuneView.vue')
+    },
+    {
+      path: '/saju',
+      name: 'saju',
+      component: () => import('../views/SajuView.vue')
     }
   ]
 });

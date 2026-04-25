@@ -10,6 +10,10 @@
           <span class="icon">✋</span>
           손금 보기
         </router-link>
+        <router-link to="/saju" class="btn btn-primary">
+          <span class="icon">🔯</span>
+          사주 풀이
+        </router-link>
         <router-link to="/misfortune" class="btn btn-secondary">
           <span class="icon">✨</span>
           불운 변환기

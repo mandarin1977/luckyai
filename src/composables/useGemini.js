@@ -2,7 +2,9 @@ import {
   PALM_READING_PROMPT,
   PALM_READING_HONEST_PROMPT,
   MISFORTUNE_PROMPT,
-  MISFORTUNE_HONEST_PROMPT
+  MISFORTUNE_HONEST_PROMPT,
+  SAJU_PROMPT,
+  SAJU_HONEST_PROMPT
 } from '../utils/prompts';
 
 export function useGemini() {
@@ -65,5 +67,20 @@ export function useGemini() {
     return callGemini(contents);
   };
 
-  return { analyzePalm, translateMisfortune };
+  const analyzeSaju = async (birthInfo, mode = 'lucky') => {
+    const template = mode === 'honest' ? SAJU_HONEST_PROMPT : SAJU_PROMPT;
+    const prompt = template
+      .replace('{birthDate}', birthInfo.birthDate)
+      .replace('{birthHour}', birthInfo.birthHour)
+      .replace('{calendar}', birthInfo.calendar)
+      .replace('{gender}', birthInfo.gender);
+    const contents = [{
+      parts: [
+        { text: prompt }
+      ]
+    }];
+    return callGemini(contents);
+  };
+
+  return { analyzePalm, translateMisfortune, analyzeSaju };
 }
