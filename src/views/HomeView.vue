@@ -32,6 +32,23 @@
       </transition>
       <button class="daily-refresh" @click="refresh">↻ 다른 한 마디</button>
     </div>
+
+    <!-- 재미로 즐기기 -->
+    <div class="play-section fade-in-up delay-4">
+      <p class="play-label">심심할 때 가볍게</p>
+      <div class="play-row">
+        <router-link to="/clicker" class="play-card">
+          <span class="play-icon">😺</span>
+          <span class="play-name">운세 클리커</span>
+          <span class="play-desc">캐릭터 누를 때마다 길조</span>
+        </router-link>
+        <router-link to="/lotto" class="play-card">
+          <span class="play-icon">🥠</span>
+          <span class="play-name">운세 로또</span>
+          <span class="play-desc">쿠키 골라 한 마디 뽑기</span>
+        </router-link>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -199,6 +216,70 @@ const refresh = () => {
 .msg-swap-leave-to {
   opacity: 0;
   transform: translateY(-6px);
+}
+
+/* Play Section */
+.play-section {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.play-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.play-row {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.play-card {
+  flex: 1;
+  min-width: 180px;
+  background: rgba(15, 14, 46, 0.45);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.play-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.15);
+}
+
+.play-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.25));
+}
+
+.play-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-accent);
+}
+
+.play-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: center;
 }
 
 /* Animations */

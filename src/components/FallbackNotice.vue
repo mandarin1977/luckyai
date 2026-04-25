@@ -12,8 +12,11 @@
           <p class="sub-msg">하루가 지나면 정상적으로 다시 동작합니다 🍀</p>
 
           <div class="action-stack">
-            <button class="btn btn-primary" @click="goToClicker">
-              😺 그동안 운세 클리커로 놀기
+            <button class="btn btn-primary" @click="goTo('/clicker')">
+              😺 운세 클리커로 놀기
+            </button>
+            <button class="btn btn-primary" @click="goTo('/lotto')">
+              🥠 운세 로또 뽑기
             </button>
             <button class="btn btn-secondary" @click="close">확인했습니다</button>
           </div>
@@ -35,9 +38,9 @@ const router = useRouter();
 
 const close = () => emit('close');
 
-const goToClicker = () => {
+const goTo = (path) => {
   emit('close');
-  router.push('/clicker');
+  router.push(path);
 };
 </script>
 

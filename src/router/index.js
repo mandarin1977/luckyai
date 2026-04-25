@@ -28,6 +28,11 @@ const router = createRouter({
       path: '/clicker',
       name: 'clicker',
       component: () => import('../views/ClickerView.vue')
+    },
+    {
+      path: '/lotto',
+      name: 'lotto',
+      component: () => import('../views/LottoView.vue')
     }
   ]
 });
