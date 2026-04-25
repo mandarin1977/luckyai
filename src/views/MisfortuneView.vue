@@ -101,7 +101,12 @@
           <blockquote>"{{ result.wisdom }}"</blockquote>
         </div>
 
+        <UselessnessMetrics />
+
         <div class="action-group mt-lg text-center">
+          <button class="btn btn-primary" @click="showCertificate = true">
+            📜 변환 완료증 발급
+          </button>
           <button class="btn btn-secondary" @click="tryOtherMode">
             {{ mode === 'lucky' ? '🧐 객관 해석도 보기' : '🍀 LuckyAI 해석도 보기' }}
           </button>
@@ -112,12 +117,21 @@
     </div>
 
     <FallbackNotice :show="showFallbackNotice" @close="showFallbackNotice = false" />
+    <CertificateModal
+      :show="showCertificate"
+      type="misfortune"
+      :result="result"
+      :mode="mode"
+      @close="showCertificate = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import FallbackNotice from '../components/FallbackNotice.vue';
+import UselessnessMetrics from '../components/UselessnessMetrics.vue';
+import CertificateModal from '../components/CertificateModal.vue';
 import { useGemini } from '../composables/useGemini';
 import { useLoadingTip } from '../composables/useLoadingTip';
 
@@ -129,6 +143,7 @@ const result = ref(null);
 const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
+const showCertificate = ref(false);
 const loadingMessage = ref('우주의 기운을 모으는 중...');
 
 const { tip: loadingTip } = useLoadingTip(stage);

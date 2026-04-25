@@ -231,7 +231,12 @@
           </div>
         </div>
 
+        <UselessnessMetrics />
+
         <div class="action-group mt-lg text-center">
+          <button class="btn btn-primary" @click="showCertificate = true">
+            📜 사주 길조 인증서 발급
+          </button>
           <button class="btn btn-secondary" @click="tryOtherMode">
             {{ mode === 'lucky' ? '🔯 전통 명리도 보기' : '🍀 LuckyAI 해석도 보기' }}
           </button>
@@ -242,12 +247,21 @@
     </div>
 
     <FallbackNotice :show="showFallbackNotice" @close="showFallbackNotice = false" />
+    <CertificateModal
+      :show="showCertificate"
+      type="saju"
+      :result="result"
+      :mode="mode"
+      @close="showCertificate = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import FallbackNotice from '../components/FallbackNotice.vue';
+import UselessnessMetrics from '../components/UselessnessMetrics.vue';
+import CertificateModal from '../components/CertificateModal.vue';
 import { useGemini } from '../composables/useGemini';
 import { useLoadingTip } from '../composables/useLoadingTip';
 import { calculateSaju } from '../utils/saju';
@@ -265,6 +279,7 @@ const result = ref(null);       // Gemini 해석 결과
 const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
+const showCertificate = ref(false);
 const loadingMessage = ref('사주 팔자를 뽑는 중...');
 
 const { tip: loadingTip } = useLoadingTip(stage);

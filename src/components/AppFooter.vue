@@ -2,6 +2,10 @@
   <footer class="app-footer">
     <div class="container text-center">
       <div class="footer-links">
+        <router-link to="/manifesto" class="footer-link">
+          📜 선언문
+        </router-link>
+        <span class="separator">·</span>
         <a
           href="https://github.com/mandarin1977/luckyai"
           target="_blank"
@@ -15,8 +19,6 @@
         </a>
         <span class="separator">·</span>
         <span class="copyright">© 2026 LuckyAI</span>
-        <span class="separator">·</span>
-        <span class="motto">All rights reserved for good fortune 🍀</span>
       </div>
     </div>
   </footer>
