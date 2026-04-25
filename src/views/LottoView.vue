@@ -1,12 +1,11 @@
 <template>
   <div class="lotto-view container pb-lg">
     <div class="header-section text-center mb-lg fade-in-up">
-      <h1 class="title">운세 로또</h1>
+      <h1 class="title">{{ t.title }}</h1>
       <p class="subtitle">{{ subtitleText }}</p>
     </div>
 
     <div class="stage-area fade-in-up delay-1">
-      <!-- 1단계: 5개 쿠키 중 하나 선택 -->
       <div v-if="stage === 'pick'" class="cookies-row">
         <button
           v-for="i in 5"
@@ -14,13 +13,12 @@
           class="cookie-btn"
           :style="{ animationDelay: `${(i - 1) * 0.08}s` }"
           @click="pickCookie(i - 1)"
-          aria-label="운세 쿠키 선택"
+          :aria-label="t.cookieAria"
         >
           <span class="cookie-emoji">🥠</span>
         </button>
       </div>
 
-      <!-- 2단계: 갈라지는 중 -->
       <div v-else-if="stage === 'opening'" class="opening-area text-center">
         <div class="opening-cookie-wrapper">
           <span class="opening-cookie">🥠</span>
@@ -29,38 +27,37 @@
           <span class="sparkle s3">✨</span>
           <span class="sparkle s4">✨</span>
         </div>
-        <p class="opening-text">우주의 메시지를 펼치는 중...</p>
+        <p class="opening-text">{{ t.opening }}</p>
       </div>
 
-      <!-- 3단계: 결과 -->
       <div v-else class="result-area">
         <div class="opened-emoji">✨</div>
         <div class="fortune-paper fade-in-up">
           <div class="paper-header">
-            <span class="paper-label">오늘의 한 마디</span>
+            <span class="paper-label">{{ t.todayWord }}</span>
           </div>
           <p class="fortune-message">"{{ fortune }}"</p>
           <div class="lucky-pair">
             <div class="lucky-item">
-              <span class="lucky-label">행운의 숫자</span>
+              <span class="lucky-label">{{ t.luckyNum }}</span>
               <span class="lucky-value">{{ luckyNumber }}</span>
             </div>
             <div class="lucky-item">
-              <span class="lucky-label">행운의 색상</span>
+              <span class="lucky-label">{{ t.luckyColorLabel }}</span>
               <span class="lucky-value">{{ luckyColor }}</span>
             </div>
           </div>
         </div>
 
         <div class="actions">
-          <button class="btn btn-primary" @click="reset">🥠 다시 뽑기</button>
-          <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
+          <button class="btn btn-primary" @click="reset">{{ t.drawAgain }}</button>
+          <router-link to="/" class="btn btn-secondary">🏠 {{ t.home }}</router-link>
         </div>
       </div>
     </div>
 
     <p v-if="stage === 'result'" class="footer-note text-center">
-      ※ 운세 로또는 매번 새 결과가 나옵니다 — 마음에 드는 한 마디를 만날 때까지 🍀
+      {{ t.footerNote }}
     </p>
   </div>
 </template>
@@ -72,26 +69,60 @@ import {
   pickRandomColor,
   pickRandomNumber
 } from '../utils/fortuneCookieMessages';
+import { useLocale } from '../composables/useLocale';
 
-const stage = ref('pick'); // 'pick' | 'opening' | 'result'
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    title: '운세 로또',
+    subPick: '다섯 개의 쿠키 중 하나를 골라보세요',
+    subOpening: '잠시 후 메시지가 도착합니다',
+    subResult: '오늘의 한 마디가 도착했습니다',
+    cookieAria: '운세 쿠키 선택',
+    opening: '우주의 메시지를 펼치는 중...',
+    todayWord: '오늘의 한 마디',
+    luckyNum: '행운의 숫자',
+    luckyColorLabel: '행운의 색상',
+    drawAgain: '🥠 다시 뽑기',
+    home: '메인으로',
+    footerNote: '※ 운세 로또는 매번 새 결과가 나옵니다 — 마음에 드는 한 마디를 만날 때까지 🍀'
+  },
+  en: {
+    title: 'Fortune Lotto',
+    subPick: 'Pick one of five cookies',
+    subOpening: 'A message will arrive shortly',
+    subResult: "Today's word has arrived",
+    cookieAria: 'Pick a fortune cookie',
+    opening: 'Unfolding the cosmic message...',
+    todayWord: "Today's Word",
+    luckyNum: 'Lucky Number',
+    luckyColorLabel: 'Lucky Color',
+    drawAgain: '🥠 Draw Again',
+    home: 'Home',
+    footerNote: '※ Fortune Lotto gives a fresh result every time — until you meet a word you like 🍀'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+
+const stage = ref('pick');
 const fortune = ref('');
 const luckyNumber = ref(0);
 const luckyColor = ref('');
 
 const subtitleText = computed(() => {
-  if (stage.value === 'pick') return '다섯 개의 쿠키 중 하나를 골라보세요';
-  if (stage.value === 'opening') return '잠시 후 메시지가 도착합니다';
-  return '오늘의 한 마디가 도착했습니다';
+  if (stage.value === 'pick') return t.value.subPick;
+  if (stage.value === 'opening') return t.value.subOpening;
+  return t.value.subResult;
 });
 
 const pickCookie = () => {
   stage.value = 'opening';
-  // 결과 미리 결정
-  fortune.value = pickRandomFortune(fortune.value);
+  fortune.value = pickRandomFortune(fortune.value, locale.value);
   luckyNumber.value = pickRandomNumber();
-  luckyColor.value = pickRandomColor();
+  luckyColor.value = pickRandomColor(locale.value);
 
-  // 1.2초 후 결과 단계
   setTimeout(() => {
     stage.value = 'result';
   }, 1200);

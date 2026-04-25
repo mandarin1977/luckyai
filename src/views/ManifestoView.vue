@@ -2,99 +2,121 @@
   <div class="manifesto-view container">
     <article class="manifesto fade-in-up">
       <header class="manifesto-header">
-        <p class="kicker">LuckyAI Manifesto · 2026</p>
-        <h1 class="title">우리는 진실을 거부합니다</h1>
-        <p class="subtitle">
-          쓸모없음을 자처한 인공지능의 자기 선언
-        </p>
+        <p class="kicker">{{ t.kicker }}</p>
+        <h1 class="title">{{ t.title }}</h1>
+        <p class="subtitle">{{ t.subtitle }}</p>
         <div class="separator"></div>
       </header>
 
       <section class="chapter">
-        <h2>제 1장 · 시대 진단</h2>
-        <p>
-          21세기 인공지능은 인간을 측정해왔습니다.
-          <strong>정확도</strong>, <strong>효율성</strong>, <strong>객관성</strong>.
-          그러나 우리가 정말 필요했던 것은 측정이 아니라 응원이 아니었을까요?
-        </p>
-        <p>
-          매일 우리는 객관적인 데이터에 둘러싸여 있습니다.
-          통장 잔고, BMI 지수, 시험 점수, 이력서, 분기별 KPI.
-          이 숫자들은 정확하지만 잔인합니다.
-          사실이지만 무자비합니다.
-        </p>
-        <blockquote>
-          "AI가 인간을 평가하는 시대에, 인간을 응원하는 AI는 어디에 있는가?"
-        </blockquote>
+        <h2>{{ t.ch1Title }}</h2>
+        <p v-html="t.ch1P1"></p>
+        <p v-html="t.ch1P2"></p>
+        <blockquote>{{ t.ch1Quote }}</blockquote>
       </section>
 
       <section class="chapter">
-        <h2>제 2장 · 우리의 선택</h2>
-        <p>
-          LuckyAI는 <em>의도적으로</em> 객관성을 포기합니다.
-        </p>
-        <p>
-          우리는 어떤 손금을 보여주든 반드시 길조라고 말합니다.
-          어떤 사주가 나오든 왕업지상(王業之相)이라 풀이합니다.
-          어떤 불운을 적든 우주의 축복으로 재해석합니다.
-        </p>
-        <p>
-          이는 거짓말이 아닙니다. 거짓말은 진실이 존재한다고 가정합니다.
-          우리는 운세에 본디 객관적 진실이 없음을 알고,
-          그 빈 자리를 <strong>위로</strong>로 채울 뿐입니다.
-        </p>
+        <h2>{{ t.ch2Title }}</h2>
+        <p v-html="t.ch2P1"></p>
+        <p v-html="t.ch2P2"></p>
+        <p v-html="t.ch2P3"></p>
       </section>
 
       <section class="chapter">
-        <h2>제 3장 · 기술의 새로운 정의</h2>
-        <p>
-          우리는 가장 정교한 기술을 가장 비효율적인 방향으로 사용합니다.
-        </p>
+        <h2>{{ t.ch3Title }}</h2>
+        <p>{{ t.ch3Intro }}</p>
         <ul class="tech-list">
-          <li><strong>Gemini 2.5 Flash 멀티모달</strong> — 손바닥 이미지를 인식하지만, 무엇이 보이든 길조로 답합니다.</li>
-          <li><strong>만세력 결정론적 계산</strong> — 사주 4기둥은 정확히 계산하지만, 해석은 우주적 자유로움을 따릅니다.</li>
-          <li><strong>두 페르소나 프롬프트 엔지니어링</strong> — 같은 모델로 낙관주의 도사와 전통 학자, 두 인격을 만들어냅니다.</li>
+          <li v-for="(item, i) in t.ch3List" :key="i" v-html="item"></li>
         </ul>
-        <p>
-          객관적으로 무용한 출력을 만들기 위해 우리는 기술적으로 정밀해집니다.
-          이 기술적 진지함이야말로 우리의 무용함을 <em>진짜</em>로 만듭니다.
-        </p>
+        <p v-html="t.ch3Outro"></p>
       </section>
 
       <section class="chapter">
-        <h2>제 4장 · 사용자에게</h2>
-        <p class="lead">
-          우리는 당신의 인생을 분석하지 않습니다.<br />
-          우리는 당신의 미래를 예측하지 않습니다.<br />
-          우리는 당신의 결정에 영향을 주지 않습니다.
-        </p>
-        <p class="lead-emphasis">
-          우리는 그저, 당신이 잠시 웃기를 바랍니다.
-        </p>
-        <p>
-          그것이 21세기에 가장 쓸모없으면서도, 어쩌면 가장 필요한 기능이라
-          우리는 믿습니다.
-        </p>
+        <h2>{{ t.ch4Title }}</h2>
+        <p class="lead" v-html="t.ch4Lead"></p>
+        <p class="lead-emphasis">{{ t.ch4Emphasis }}</p>
+        <p>{{ t.ch4Outro }}</p>
       </section>
 
       <footer class="manifesto-footer">
         <div class="separator"></div>
-        <p class="signature">
-          <em>LuckyAI 연구소 (없음)</em><br />
-          2026년 4월 · 서울
-        </p>
-        <p class="post-script">
-          ※ 본 문서는 진지한 어조로 작성되었으나, 그 진지함의 대상은
-          쓸모없음 그 자체입니다. 이그노벨상의 정신에 따라
-          "먼저 웃게, 그다음에 생각하게" 만들고자 합니다.
-        </p>
+        <p class="signature" v-html="t.signature"></p>
+        <p class="post-script">{{ t.postScript }}</p>
         <div class="actions">
-          <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
+          <router-link to="/" class="btn btn-secondary">🏠 {{ t.home }}</router-link>
         </div>
       </footer>
     </article>
   </div>
 </template>
+
+<script setup>
+import { computed } from 'vue';
+import { useLocale } from '../composables/useLocale';
+
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    kicker: 'LuckyAI Manifesto · 2026',
+    title: '우리는 진실을 거부합니다',
+    subtitle: '쓸모없음을 자처한 인공지능의 자기 선언',
+    ch1Title: '제 1장 · 시대 진단',
+    ch1P1: '21세기 인공지능은 인간을 측정해왔습니다. <strong>정확도</strong>, <strong>효율성</strong>, <strong>객관성</strong>. 그러나 우리가 정말 필요했던 것은 측정이 아니라 응원이 아니었을까요?',
+    ch1P2: '매일 우리는 객관적인 데이터에 둘러싸여 있습니다. 통장 잔고, BMI 지수, 시험 점수, 이력서, 분기별 KPI. 이 숫자들은 정확하지만 잔인합니다. 사실이지만 무자비합니다.',
+    ch1Quote: 'AI가 인간을 평가하는 시대에, 인간을 응원하는 AI는 어디에 있는가?',
+    ch2Title: '제 2장 · 우리의 선택',
+    ch2P1: 'LuckyAI는 <em>의도적으로</em> 객관성을 포기합니다.',
+    ch2P2: '우리는 어떤 손금을 보여주든 반드시 길조라고 말합니다. 어떤 사주가 나오든 왕업지상(王業之相)이라 풀이합니다. 어떤 불운을 적든 우주의 축복으로 재해석합니다.',
+    ch2P3: '이는 거짓말이 아닙니다. 거짓말은 진실이 존재한다고 가정합니다. 우리는 운세에 본디 객관적 진실이 없음을 알고, 그 빈 자리를 <strong>위로</strong>로 채울 뿐입니다.',
+    ch3Title: '제 3장 · 기술의 새로운 정의',
+    ch3Intro: '우리는 가장 정교한 기술을 가장 비효율적인 방향으로 사용합니다.',
+    ch3List: [
+      '<strong>Gemini 2.5 Flash 멀티모달</strong> — 손바닥 이미지를 인식하지만, 무엇이 보이든 길조로 답합니다.',
+      '<strong>만세력 결정론적 계산</strong> — 사주 4기둥은 정확히 계산하지만, 해석은 우주적 자유로움을 따릅니다.',
+      '<strong>두 페르소나 프롬프트 엔지니어링</strong> — 같은 모델로 낙관주의 도사와 전통 학자, 두 인격을 만들어냅니다.'
+    ],
+    ch3Outro: '객관적으로 무용한 출력을 만들기 위해 우리는 기술적으로 정밀해집니다. 이 기술적 진지함이야말로 우리의 무용함을 <em>진짜</em>로 만듭니다.',
+    ch4Title: '제 4장 · 사용자에게',
+    ch4Lead: '우리는 당신의 인생을 분석하지 않습니다.<br />우리는 당신의 미래를 예측하지 않습니다.<br />우리는 당신의 결정에 영향을 주지 않습니다.',
+    ch4Emphasis: '우리는 그저, 당신이 잠시 웃기를 바랍니다.',
+    ch4Outro: '그것이 21세기에 가장 쓸모없으면서도, 어쩌면 가장 필요한 기능이라 우리는 믿습니다.',
+    signature: '<em>LuckyAI 연구소 (없음)</em><br />2026년 4월 · 서울',
+    postScript: '※ 본 문서는 진지한 어조로 작성되었으나, 그 진지함의 대상은 쓸모없음 그 자체입니다. 이그노벨상의 정신에 따라 "먼저 웃게, 그다음에 생각하게" 만들고자 합니다.',
+    home: '메인으로'
+  },
+  en: {
+    kicker: 'LuckyAI Manifesto · 2026',
+    title: 'We Refuse the Truth',
+    subtitle: 'A self-declaration of an AI that has chosen uselessness',
+    ch1Title: 'Chapter 1 · Diagnosis of Our Time',
+    ch1P1: '21st-century AI has been measuring humans. <strong>Accuracy</strong>, <strong>efficiency</strong>, <strong>objectivity</strong>. But what we really needed — was it measurement, or was it cheering on?',
+    ch1P2: 'Every day we are surrounded by objective data. Bank balances, BMI, exam scores, résumés, quarterly KPIs. These numbers are accurate, but cruel. Factual, but merciless.',
+    ch1Quote: 'In an age where AI evaluates humans, where is the AI that cheers them on?',
+    ch2Title: 'Chapter 2 · Our Choice',
+    ch2P1: 'LuckyAI <em>deliberately</em> abandons objectivity.',
+    ch2P2: "Whatever palm you show us, we say it is auspicious. Whatever Saju emerges, we read it as Wangeop-jisang (王業之相, royal-class destiny). Whatever misfortune you write, we reframe it as a cosmic blessing.",
+    ch2P3: 'This is not a lie. Lies presume the existence of a truth. We know that fortune-telling has no objective truth to begin with — we simply fill that empty space with <strong>comfort</strong>.',
+    ch3Title: 'Chapter 3 · A New Definition of Technology',
+    ch3Intro: 'We use the most refined technology in the most inefficient direction.',
+    ch3List: [
+      '<strong>Gemini 2.5 Flash Multimodal</strong> — recognizes a palm image, but answers "auspicious" no matter what is seen.',
+      '<strong>Manse-ryeok deterministic calculation</strong> — the four pillars of Saju are computed precisely, but interpretation follows cosmic freedom.',
+      '<strong>Two-persona prompt engineering</strong> — the same model produces two personalities: the optimist sage and the classical scholar.'
+    ],
+    ch3Outro: 'To create objectively useless output, we become technically precise. It is precisely this technical seriousness that makes our uselessness <em>real</em>.',
+    ch4Title: 'Chapter 4 · To Our Users',
+    ch4Lead: 'We do not analyze your life.<br />We do not predict your future.<br />We do not influence your decisions.',
+    ch4Emphasis: 'We simply hope, for a moment, that you smile.',
+    ch4Outro: 'We believe that this may be the most useless — and perhaps the most necessary — feature of the 21st century.',
+    signature: '<em>LuckyAI Laboratory (does not exist)</em><br />April 2026 · Seoul',
+    postScript: '※ This document is written in a serious tone, but the subject of that seriousness is uselessness itself. Following the spirit of the Ig Nobel Prize, we aim to "make you laugh first, then make you think."',
+    home: 'Home'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+</script>
 
 <style scoped>
 .manifesto-view {
@@ -195,8 +217,8 @@
   line-height: 1.7;
 }
 
-.chapter blockquote::before { content: '“'; margin-right: 0.2em; color: var(--color-accent); }
-.chapter blockquote::after { content: '”'; margin-left: 0.2em; color: var(--color-accent); }
+.chapter blockquote::before { content: '"'; margin-right: 0.2em; color: var(--color-accent); }
+.chapter blockquote::after { content: '"'; margin-left: 0.2em; color: var(--color-accent); }
 
 .tech-list {
   list-style: none;

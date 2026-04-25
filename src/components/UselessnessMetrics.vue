@@ -2,8 +2,8 @@
   <div class="uselessness-metrics">
     <div class="metrics-header">
       <span class="metrics-icon">📊</span>
-      <span class="metrics-title">LuckyAI 신뢰도 자체 평가</span>
-      <span class="metrics-sub">— 정직한 무용성 보고서 —</span>
+      <span class="metrics-title">{{ t.title }}</span>
+      <span class="metrics-sub">{{ t.sub }}</span>
     </div>
 
     <div class="metrics-grid">
@@ -14,19 +14,43 @@
       </div>
     </div>
 
-    <p class="metrics-note">
-      ※ 본 평가는 자가 측정되었으며, 측정 도구의 신뢰도 또한 측정되지 않았습니다.
-    </p>
+    <p class="metrics-note">{{ t.note }}</p>
   </div>
 </template>
 
 <script setup>
-const metrics = [
-  { label: '객관적 사실 부합률', value: '0%', tone: 'zero' },
-  { label: '미래 예측 정확도', value: '측정 불가', tone: 'neutral' },
-  { label: '플라시보 효과 보장률', value: '100%', tone: 'full' },
-  { label: '기술적 진지함', value: '매우 높음', tone: 'full' }
-];
+import { computed } from 'vue';
+import { useLocale } from '../composables/useLocale';
+
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    title: 'LuckyAI 신뢰도 자체 평가',
+    sub: '— 정직한 무용성 보고서 —',
+    note: '※ 본 평가는 자가 측정되었으며, 측정 도구의 신뢰도 또한 측정되지 않았습니다.',
+    rows: [
+      { label: '객관적 사실 부합률', value: '0%', tone: 'zero' },
+      { label: '미래 예측 정확도', value: '측정 불가', tone: 'neutral' },
+      { label: '플라시보 효과 보장률', value: '100%', tone: 'full' },
+      { label: '기술적 진지함', value: '매우 높음', tone: 'full' }
+    ]
+  },
+  en: {
+    title: 'LuckyAI Self-Assessed Reliability',
+    sub: '— An Honest Uselessness Report —',
+    note: '※ This assessment was self-measured, and the reliability of the measuring tool was also not measured.',
+    rows: [
+      { label: 'Factual accuracy', value: '0%', tone: 'zero' },
+      { label: 'Predictive accuracy', value: 'Unmeasurable', tone: 'neutral' },
+      { label: 'Placebo effect rate', value: '100%', tone: 'full' },
+      { label: 'Technical seriousness', value: 'Very High', tone: 'full' }
+    ]
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+const metrics = computed(() => t.value.rows);
 </script>
 
 <style scoped>

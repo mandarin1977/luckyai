@@ -3,7 +3,6 @@
     <transition name="modal-fade">
       <div v-if="show" class="cert-overlay" @click="close">
         <div class="cert-wrapper" @click.stop>
-          <!-- 인증서 본체 (이미지로 캡처될 영역) -->
           <div ref="certEl" class="certificate" :class="`cert-${type}`">
             <div class="cert-corner top-left">★</div>
             <div class="cert-corner top-right">★</div>
@@ -12,20 +11,16 @@
 
             <div class="cert-header">
               <p class="cert-eyebrow">CERTIFICATE OF FORTUNE</p>
-              <h2 class="cert-title">{{ titleByType }} 길조 인증서</h2>
-              <p class="cert-no">제 LKY-{{ certNumber }} 호</p>
+              <h2 class="cert-title">{{ certTitle }}</h2>
+              <p class="cert-no">{{ t.certNo }} LKY-{{ certNumber }}</p>
             </div>
 
             <div class="cert-body">
-              <p class="cert-statement">
-                위 사람이 <strong>LuckyAI</strong>로부터 다음과 같은
-                <em>{{ modeLabel }}</em>을 받았음을<br />
-                엄숙히 증명합니다.
-              </p>
+              <p class="cert-statement" v-html="statementHtml"></p>
 
               <div v-if="hasScore" class="cert-score">
-                <span class="score-label">길조 지수</span>
-                <span class="score-value">{{ result.score }}<span class="score-unit">점</span></span>
+                <span class="score-label">{{ t.scoreLabel }}</span>
+                <span class="score-value">{{ result.score }}<span class="score-unit">{{ t.scoreUnit }}</span></span>
               </div>
 
               <blockquote class="cert-fortune">
@@ -33,36 +28,33 @@
               </blockquote>
 
               <div v-if="hasLucky" class="cert-lucky">
-                <span>🍀 행운의 숫자 <strong>{{ result.luckyNumber }}</strong></span>
+                <span>🍀 {{ t.luckyNum }} <strong>{{ result.luckyNumber }}</strong></span>
                 <span class="dot">·</span>
-                <span>🎨 행운의 색상 <strong>{{ result.luckyColor }}</strong></span>
+                <span>🎨 {{ t.luckyColor }} <strong>{{ result.luckyColor }}</strong></span>
               </div>
             </div>
 
             <div class="cert-footer">
               <div class="cert-date">{{ todayDate }}</div>
               <div class="cert-issuer">
-                <p class="issuer-name">LuckyAI 연구소</p>
-                <p class="issuer-sub">(존재하지 않음)</p>
+                <p class="issuer-name">{{ t.lab }}</p>
+                <p class="issuer-sub">{{ t.labSub }}</p>
                 <div class="cert-seal">
                   <div class="seal-inner">
-                    <span class="seal-text">✿ LUCKY ✿<br />AI 印</span>
+                    <span class="seal-text" v-html="t.sealText"></span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <p class="cert-disclaimer">
-              ※ 본 인증서의 객관적 효력은 0%이며, 그 사실이 본 인증의 자랑입니다.
-            </p>
+            <p class="cert-disclaimer">{{ t.disclaimer }}</p>
           </div>
 
-          <!-- 액션 버튼 -->
           <div class="cert-actions">
             <button class="btn btn-primary" :disabled="downloading" @click="download">
-              {{ downloading ? '저장 중...' : '📥 이미지로 저장' }}
+              {{ downloading ? t.saving : t.saveImg }}
             </button>
-            <button class="btn btn-secondary" @click="close">닫기</button>
+            <button class="btn btn-secondary" @click="close">{{ t.close }}</button>
           </div>
         </div>
       </div>
@@ -73,6 +65,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { toPng } from 'html-to-image';
+import { useLocale } from '../composables/useLocale';
 
 const props = defineProps({
   show: Boolean,
@@ -86,23 +79,81 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
+const { locale } = useLocale();
 
 const certEl = ref(null);
 const downloading = ref(false);
-
-// 임의 인증서 번호 (한 번만 생성)
 const certNumber = ref(String(Math.floor(Math.random() * 9000) + 1000));
 
-const titleByType = computed(() => ({
-  palm: '손금', saju: '사주', misfortune: '불운 변환'
-}[props.type] || ''));
+const STRINGS = {
+  ko: {
+    certNo: '제',
+    scoreLabel: '길조 지수',
+    scoreUnit: '점',
+    luckyNum: '행운의 숫자',
+    luckyColor: '행운의 색상',
+    lab: 'LuckyAI 연구소',
+    labSub: '(존재하지 않음)',
+    sealText: '✿ LUCKY ✿<br />AI 印',
+    disclaimer: '※ 본 인증서의 객관적 효력은 0%이며, 그 사실이 본 인증의 자랑입니다.',
+    saveImg: '📥 이미지로 저장',
+    saving: '저장 중...',
+    close: '닫기',
+    titlePalm: '손금 길조 인증서',
+    titleSaju: '사주 길조 인증서',
+    titleMis: '불운 변환 인증서',
+    statement: (modeLabel) => `위 사람이 <strong>LuckyAI</strong>로부터 다음과 같은 <em>${modeLabel}</em>을 받았음을<br />엄숙히 증명합니다.`,
+    modePalmLucky: 'LuckyAI 길조 해석',
+    modePalmHonest: '전통 객관 해석',
+    modeSajuLucky: 'LuckyAI 길조 해석',
+    modeSajuHonest: '전통 객관 해석',
+    modeMisLucky: '우주적 길조 재해석',
+    modeMisHonest: '균형잡힌 객관 분석',
+    saveError: '이미지 저장에 실패했습니다. 스크린샷으로 저장해주세요.'
+  },
+  en: {
+    certNo: 'No.',
+    scoreLabel: 'Fortune Index',
+    scoreUnit: ' pts',
+    luckyNum: 'Lucky Number',
+    luckyColor: 'Lucky Color',
+    lab: 'LuckyAI Laboratory',
+    labSub: '(does not exist)',
+    sealText: '✿ LUCKY ✿<br />AI · SEAL',
+    disclaimer: '※ The objective validity of this certificate is 0%, and that fact is the pride of this certification.',
+    saveImg: '📥 Save as Image',
+    saving: 'Saving...',
+    close: 'Close',
+    titlePalm: 'Palm Fortune Certificate',
+    titleSaju: 'Saju Fortune Certificate',
+    titleMis: 'Misfortune Reframe Certificate',
+    statement: (modeLabel) => `It is hereby solemnly certified that the bearer received from <strong>LuckyAI</strong><br />the following <em>${modeLabel}</em>.`,
+    modePalmLucky: 'LuckyAI Fortune Reading',
+    modePalmHonest: 'Traditional Objective Reading',
+    modeSajuLucky: 'LuckyAI Fortune Reading',
+    modeSajuHonest: 'Traditional Objective Reading',
+    modeMisLucky: 'Cosmic Fortune Reframing',
+    modeMisHonest: 'Balanced Objective Analysis',
+    saveError: 'Failed to save image. Please take a screenshot instead.'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+
+const certTitle = computed(() => {
+  return { palm: t.value.titlePalm, saju: t.value.titleSaju, misfortune: t.value.titleMis }[props.type] || '';
+});
 
 const modeLabel = computed(() => {
-  if (props.type === 'misfortune') {
-    return props.mode === 'lucky' ? '우주적 길조 재해석' : '균형잡힌 객관 분석';
-  }
-  return props.mode === 'lucky' ? 'LuckyAI 길조 해석' : '전통 객관 해석';
+  const map = {
+    palm: { lucky: t.value.modePalmLucky, honest: t.value.modePalmHonest },
+    saju: { lucky: t.value.modeSajuLucky, honest: t.value.modeSajuHonest },
+    misfortune: { lucky: t.value.modeMisLucky, honest: t.value.modeMisHonest }
+  };
+  return map[props.type]?.[props.mode] || '';
 });
+
+const statementHtml = computed(() => t.value.statement(modeLabel.value));
 
 const hasScore = computed(() => props.type !== 'misfortune' && props.result?.score != null);
 const hasLucky = computed(() => props.type !== 'misfortune' && props.result?.luckyNumber != null);
@@ -115,6 +166,10 @@ const mainText = computed(() => {
 
 const todayDate = computed(() => {
   const d = new Date();
+  if (locale.value === 'en') {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `Issued on ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 발급`;
 });
 
@@ -134,7 +189,7 @@ const download = async () => {
     link.click();
   } catch (error) {
     console.error('인증서 저장 실패:', error);
-    alert('이미지 저장에 실패했습니다. 스크린샷으로 저장해주세요.');
+    alert(t.value.saveError);
   } finally {
     downloading.value = false;
   }

@@ -4,21 +4,18 @@
       <div v-if="show" class="modal-overlay" @click="close">
         <div class="notice-card" @click.stop>
           <div class="notice-icon">🌙</div>
-          <h3>잠시 우주의 통신이 막혔습니다</h3>
-          <p class="main-msg">
-            오늘의 Gemini API 한도가 소진되어<br />
-            아래 결과는 <strong>준비된 데모 데이터</strong>로 보여드립니다.
-          </p>
-          <p class="sub-msg">하루가 지나면 정상적으로 다시 동작합니다 🍀</p>
+          <h3>{{ t.title }}</h3>
+          <p class="main-msg" v-html="t.mainMsg"></p>
+          <p class="sub-msg">{{ t.subMsg }}</p>
 
           <div class="action-stack">
             <button class="btn btn-primary" @click="goTo('/clicker')">
-              😺 운세 클리커로 놀기
+              {{ t.clickerBtn }}
             </button>
             <button class="btn btn-primary" @click="goTo('/lotto')">
-              🥠 운세 로또 뽑기
+              {{ t.lottoBtn }}
             </button>
-            <button class="btn btn-secondary" @click="close">확인했습니다</button>
+            <button class="btn btn-secondary" @click="close">{{ t.okBtn }}</button>
           </div>
         </div>
       </div>
@@ -27,14 +24,35 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useLocale } from '../composables/useLocale';
 
-defineProps({
-  show: Boolean
-});
-
+defineProps({ show: Boolean });
 const emit = defineEmits(['close']);
 const router = useRouter();
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    title: '잠시 우주의 통신이 막혔습니다',
+    mainMsg: '오늘의 Gemini API 한도가 소진되어<br />아래 결과는 <strong>준비된 데모 데이터</strong>로 보여드립니다.',
+    subMsg: '하루가 지나면 정상적으로 다시 동작합니다 🍀',
+    clickerBtn: '😺 운세 클리커로 놀기',
+    lottoBtn: '🥠 운세 로또 뽑기',
+    okBtn: '확인했습니다'
+  },
+  en: {
+    title: 'The cosmic transmission is briefly blocked',
+    mainMsg: "Today's Gemini API quota is used up — <br />the result below is <strong>prepared demo data</strong>.",
+    subMsg: 'It will work normally again tomorrow 🍀',
+    clickerBtn: '😺 Play Fortune Clicker',
+    lottoBtn: '🥠 Draw Fortune Lotto',
+    okBtn: 'Got it'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
 
 const close = () => emit('close');
 

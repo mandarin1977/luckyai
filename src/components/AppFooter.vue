@@ -3,7 +3,7 @@
     <div class="container text-center">
       <div class="footer-links">
         <router-link to="/manifesto" class="footer-link">
-          📜 선언문
+          📜 {{ t.manifesto }}
         </router-link>
         <span class="separator">·</span>
         <a
@@ -23,6 +23,19 @@
     </div>
   </footer>
 </template>
+
+<script setup>
+import { computed } from 'vue';
+import { useLocale } from '../composables/useLocale';
+
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: { manifesto: '선언문' },
+  en: { manifesto: 'Manifesto' }
+};
+const t = computed(() => STRINGS[locale.value]);
+</script>
 
 <style scoped>
 .app-footer {

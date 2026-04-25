@@ -3,20 +3,20 @@
     <div class="hero">
       <h1 class="title en fade-in-up">LuckyAI</h1>
       <p class="slogan en fade-in-up delay-1">"AI-powered optimism, scientifically unfounded."</p>
-      <p class="sub-slogan fade-in-up delay-2">당신의 모든 것이 길조입니다</p>
+      <p class="sub-slogan fade-in-up delay-2">{{ t.subSlogan }}</p>
 
       <div class="cta-group fade-in-up delay-3">
         <router-link to="/palm" class="btn btn-primary">
           <span class="icon">✋</span>
-          손금 보기
+          {{ t.palm }}
         </router-link>
         <router-link to="/saju" class="btn btn-primary">
           <span class="icon">🔯</span>
-          사주 풀이
+          {{ t.saju }}
         </router-link>
         <router-link to="/misfortune" class="btn btn-secondary">
           <span class="icon">✨</span>
-          불운 변환기
+          {{ t.misfortune }}
         </router-link>
       </div>
     </div>
@@ -24,28 +24,28 @@
     <!-- 오늘의 한 마디 -->
     <div class="daily-card fade-in-up delay-4">
       <div class="daily-header">
-        <span class="daily-label">🌟 오늘의 한 마디</span>
+        <span class="daily-label">🌟 {{ t.dailyLabel }}</span>
         <span class="daily-date">{{ todayDate }}</span>
       </div>
       <transition name="msg-swap" mode="out-in">
         <p :key="todayMessage" class="daily-message">"{{ todayMessage }}"</p>
       </transition>
-      <button class="daily-refresh" @click="refresh">↻ 다른 한 마디</button>
+      <button class="daily-refresh" @click="refresh">{{ t.refreshBtn }}</button>
     </div>
 
     <!-- 재미로 즐기기 -->
     <div class="play-section fade-in-up delay-4">
-      <p class="play-label">심심할 때 가볍게</p>
+      <p class="play-label">{{ t.playLabel }}</p>
       <div class="play-row">
         <router-link to="/clicker" class="play-card">
           <span class="play-icon">😺</span>
-          <span class="play-name">운세 클리커</span>
-          <span class="play-desc">캐릭터 누를 때마다 길조</span>
+          <span class="play-name">{{ t.clickerName }}</span>
+          <span class="play-desc">{{ t.clickerDesc }}</span>
         </router-link>
         <router-link to="/lotto" class="play-card">
           <span class="play-icon">🥠</span>
-          <span class="play-name">운세 로또</span>
-          <span class="play-desc">쿠키 골라 한 마디 뽑기</span>
+          <span class="play-name">{{ t.lottoName }}</span>
+          <span class="play-desc">{{ t.lottoDesc }}</span>
         </router-link>
       </div>
     </div>
@@ -53,14 +53,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { CLICKER_MESSAGES, pickRandomMessage } from '../utils/clickerMessages';
+import { ref, onMounted, computed, watch } from 'vue';
+import { pickRandomMessage } from '../utils/clickerMessages';
+import { useLocale } from '../composables/useLocale';
+
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    subSlogan: '당신의 모든 것이 길조입니다',
+    palm: '손금 보기',
+    saju: '사주 풀이',
+    misfortune: '불운 변환기',
+    dailyLabel: '오늘의 한 마디',
+    refreshBtn: '↻ 다른 한 마디',
+    playLabel: '심심할 때 가볍게',
+    clickerName: '운세 클리커',
+    clickerDesc: '캐릭터 누를 때마다 길조',
+    lottoName: '운세 로또',
+    lottoDesc: '쿠키 골라 한 마디 뽑기'
+  },
+  en: {
+    subSlogan: 'Everything about you is auspicious',
+    palm: 'Palm Reading',
+    saju: 'Saju (4 Pillars)',
+    misfortune: 'Misfortune Reframer',
+    dailyLabel: "Today's Word",
+    refreshBtn: '↻ Another word',
+    playLabel: 'A little something for boredom',
+    clickerName: 'Fortune Clicker',
+    clickerDesc: 'Tap the character for fortune',
+    lottoName: 'Fortune Lotto',
+    lottoDesc: 'Pick a cookie, get a word'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
 
 const todayMessage = ref('');
 
 const todayKey = computed(() => {
   const d = new Date();
-  return `lucky-daily-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return `lucky-daily-${locale.value}-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 });
 
 const todayDate = computed(() => {
@@ -68,37 +102,30 @@ const todayDate = computed(() => {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 });
 
-// localStorage는 Safari 프라이빗 모드 / 꽉 찬 storage 등에서 throw 가능.
-// 모든 접근을 보호해 한 번이라도 실패해도 화면은 정상 동작하게.
 const safeRead = (key) => {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
+  try { return localStorage.getItem(key); } catch { return null; }
 };
-
 const safeWrite = (key, value) => {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    /* 무시 — 캐시 안 되어도 동작은 정상 */
-  }
+  try { localStorage.setItem(key, value); } catch { /* ignore */ }
 };
 
-onMounted(() => {
+const loadOrPickToday = () => {
   const cached = safeRead(todayKey.value);
   if (cached) {
     todayMessage.value = cached;
   } else {
-    const msg = CLICKER_MESSAGES[Math.floor(Math.random() * CLICKER_MESSAGES.length)];
+    const msg = pickRandomMessage('', locale.value);
     todayMessage.value = msg;
     safeWrite(todayKey.value, msg);
   }
-});
+};
+
+onMounted(loadOrPickToday);
+// locale 바뀌면 그날의 메시지 (해당 언어 캐시) 다시 로드
+watch(locale, loadOrPickToday);
 
 const refresh = () => {
-  const newMsg = pickRandomMessage(todayMessage.value);
+  const newMsg = pickRandomMessage(todayMessage.value, locale.value);
   todayMessage.value = newMsg;
   safeWrite(todayKey.value, newMsg);
 };
@@ -110,7 +137,7 @@ const refresh = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 160px); /* Adjust based on header/footer */
+  min-height: calc(100vh - 160px);
   text-align: center;
   gap: var(--spacing-xl);
   padding-top: var(--spacing-xl);
@@ -163,7 +190,6 @@ const refresh = () => {
   }
 }
 
-/* Daily Card */
 .daily-card {
   width: 100%;
   max-width: 560px;
@@ -182,6 +208,8 @@ const refresh = () => {
   justify-content: space-between;
   width: 100%;
   font-size: 0.85rem;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 .daily-label {
@@ -226,17 +254,9 @@ const refresh = () => {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.msg-swap-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
-}
+.msg-swap-enter-from { opacity: 0; transform: translateY(6px); }
+.msg-swap-leave-to { opacity: 0; transform: translateY(-6px); }
 
-.msg-swap-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-/* Play Section */
 .play-section {
   width: 100%;
   max-width: 560px;
@@ -262,7 +282,7 @@ const refresh = () => {
 
 .play-card {
   flex: 1;
-  min-width: 180px;
+  min-width: 160px;
   background: rgba(15, 14, 46, 0.45);
   border: 1px solid rgba(255, 215, 0, 0.15);
   border-radius: var(--border-radius-md);
@@ -300,7 +320,6 @@ const refresh = () => {
   text-align: center;
 }
 
-/* Animations */
 .fade-in-up {
   opacity: 0;
   animation: scaleUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;

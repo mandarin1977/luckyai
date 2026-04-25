@@ -1,17 +1,16 @@
 <template>
   <div class="clicker-view container pb-lg">
     <div class="header-section text-center mb-lg fade-in-up">
-      <h1 class="title">운세 클리커</h1>
-      <p class="subtitle">API가 잠든 사이, 캐릭터가 길조를 떨어뜨립니다</p>
+      <h1 class="title">{{ t.title }}</h1>
+      <p class="subtitle">{{ t.subtitle }}</p>
     </div>
 
     <div class="clicker-stage fade-in-up delay-1">
-      <!-- 클릭 가능한 캐릭터 -->
       <button
         class="character"
         :class="{ pop: isPopping }"
         @click="handleClick"
-        aria-label="캐릭터 클릭"
+        :aria-label="t.charAria"
       >
         <span class="character-emoji">{{ character }}</span>
         <span v-for="msg in floatingMessages" :key="msg.id" class="floating-msg" :style="msg.style">
@@ -19,7 +18,6 @@
         </span>
       </button>
 
-      <!-- 떠다니는 길조 메시지 -->
       <transition name="msg-pop" mode="out-in">
         <div v-if="currentMessage" :key="messageKey" class="message-card">
           <span class="quote-mark">"</span>
@@ -28,61 +26,94 @@
         </div>
       </transition>
 
-      <!-- 누적 클릭 -->
       <div class="stats">
         <div class="stat">
-          <span class="stat-label">클릭</span>
+          <span class="stat-label">{{ t.clicksLabel }}</span>
           <span class="stat-value">{{ clickCount }}</span>
         </div>
         <div class="stat">
-          <span class="stat-label">누적 길조</span>
-          <span class="stat-value">{{ goodFortuneAccumulated }}점</span>
+          <span class="stat-label">{{ t.accumLabel }}</span>
+          <span class="stat-value">{{ goodFortuneAccumulated }}{{ t.scoreUnit }}</span>
         </div>
       </div>
 
-      <!-- 마일스톤 -->
       <div v-if="milestone" class="milestone-banner">
         🎉 {{ milestone }}
       </div>
 
-      <!-- 액션 -->
       <div class="action-row">
-        <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
-        <button class="btn btn-secondary" @click="reset">처음부터 다시</button>
+        <router-link to="/" class="btn btn-secondary">🏠 {{ t.home }}</router-link>
+        <button class="btn btn-secondary" @click="reset">{{ t.restart }}</button>
       </div>
     </div>
 
-    <p class="footer-note text-center">
-      ※ 본 게임의 메시지는 통계적·과학적 근거가 없으며, <br />
-      그저 당신의 기분이 좋아지길 바라는 마음의 산물입니다 🍀
-    </p>
+    <p class="footer-note text-center" v-html="t.footerNote"></p>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { CLICKER_CHARACTERS, pickRandomCharacter, pickRandomMessage } from '../utils/clickerMessages';
+import { useLocale } from '../composables/useLocale';
+
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    title: '운세 클리커',
+    subtitle: 'API가 잠든 사이, 캐릭터가 길조를 떨어뜨립니다',
+    charAria: '캐릭터 클릭',
+    clicksLabel: '클릭',
+    accumLabel: '누적 길조',
+    scoreUnit: '점',
+    home: '메인으로',
+    restart: '처음부터 다시',
+    footerNote: '※ 본 게임의 메시지는 통계적·과학적 근거가 없으며, <br />그저 당신의 기분이 좋아지길 바라는 마음의 산물입니다 🍀',
+    milestone10: '클릭 10회 달성! 우주가 알아채는 중',
+    milestone30: '클릭 30회 달성! 길조의 그릇이 커지고 있습니다',
+    milestone50: '클릭 50회 달성! 진짜로 행운이 따라올지도?',
+    milestone100: '클릭 100회! 당신은 클리커의 전설입니다',
+    milestone200: '클릭 200회... 이제 그만 좀 누르세요 (좋은 의미로)'
+  },
+  en: {
+    title: 'Fortune Clicker',
+    subtitle: "While the API sleeps, the character drops fortunes",
+    charAria: 'Click the character',
+    clicksLabel: 'Clicks',
+    accumLabel: 'Accumulated',
+    scoreUnit: ' pts',
+    home: 'Home',
+    restart: 'Restart',
+    footerNote: '※ Messages in this game have no statistical or scientific basis — <br />they are merely products of a heart wishing you a better mood 🍀',
+    milestone10: '10 clicks! The cosmos is taking notice',
+    milestone30: '30 clicks! The vessel of fortune is growing',
+    milestone50: '50 clicks! Real luck might actually follow?',
+    milestone100: '100 clicks! You are a clicker legend',
+    milestone200: "200 clicks... please stop now (lovingly)"
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
 
 const character = ref(CLICKER_CHARACTERS[0]);
 const clickCount = ref(0);
 const currentMessage = ref('');
 const messageKey = ref(0);
 const isPopping = ref(false);
-const floatingMessages = ref([]); // "+1" floating animations
+const floatingMessages = ref([]);
 let nextFloatId = 0;
 
-// 누적 점수 = 클릭당 0.7~1.5점 랜덤
 const goodFortuneAccumulated = computed(() =>
   (clickCount.value * 1.1).toFixed(1)
 );
 
 const milestone = computed(() => {
   const c = clickCount.value;
-  if (c === 10) return '클릭 10회 달성! 우주가 알아채는 중';
-  if (c === 30) return '클릭 30회 달성! 길조의 그릇이 커지고 있습니다';
-  if (c === 50) return '클릭 50회 달성! 진짜로 행운이 따라올지도?';
-  if (c === 100) return '클릭 100회! 당신은 클리커의 전설입니다';
-  if (c === 200) return '클릭 200회... 이제 그만 좀 누르세요 (좋은 의미로)';
+  if (c === 10) return t.value.milestone10;
+  if (c === 30) return t.value.milestone30;
+  if (c === 50) return t.value.milestone50;
+  if (c === 100) return t.value.milestone100;
+  if (c === 200) return t.value.milestone200;
   return null;
 });
 
@@ -90,7 +121,7 @@ const handleClick = (event) => {
   clickCount.value++;
 
   // 메시지 갱신
-  currentMessage.value = pickRandomMessage(currentMessage.value);
+  currentMessage.value = pickRandomMessage(currentMessage.value, locale.value);
   messageKey.value++;
 
   // 캐릭터 팝 애니메이션

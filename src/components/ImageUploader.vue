@@ -2,14 +2,13 @@
   <div class="image-uploader">
     <div v-if="!previewUrl" class="upload-area" @click="handleClick">
       <div class="upload-icon">✋</div>
-      <p>손바닥 사진을 업로드해주세요</p>
-      <span class="sub-text">가급적 밝은 곳에서 선명하게 찍어주세요</span>
-      
-      <!-- Desktop Input (Hidden) -->
-      <input 
+      <p>{{ t.uploadPrompt }}</p>
+      <span class="sub-text">{{ t.uploadHint }}</span>
+
+      <input
         v-if="!isMobile"
         ref="desktopInput"
-        type="file" 
+        type="file"
         accept="image/*"
         class="hidden-input"
         @change="handleFileSelect"
@@ -17,13 +16,12 @@
     </div>
 
     <div v-else class="preview-area">
-      <img :src="previewUrl" alt="손금 미리보기" class="preview-img" />
-      <button class="btn btn-secondary reupload-btn" @click="reset">다시 올리기</button>
+      <img :src="previewUrl" :alt="t.previewAlt" class="preview-img" />
+      <button class="btn btn-secondary reupload-btn" @click="reset">{{ t.reupload }}</button>
     </div>
 
-    <!-- Mobile Modal -->
-    <MobileUploadModal 
-      :is-open="isModalOpen" 
+    <MobileUploadModal
+      :is-open="isModalOpen"
       @close="isModalOpen = false"
       @file-selected="onFileSelected"
     />
@@ -31,12 +29,31 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useDevice } from '../composables/useDevice';
+import { useLocale } from '../composables/useLocale';
 import MobileUploadModal from './MobileUploadModal.vue';
 
 const { isMobile } = useDevice();
+const { locale } = useLocale();
 const emit = defineEmits(['image-ready', 'reset']);
+
+const STRINGS = {
+  ko: {
+    uploadPrompt: '손바닥 사진을 업로드해주세요',
+    uploadHint: '가급적 밝은 곳에서 선명하게 찍어주세요',
+    previewAlt: '손금 미리보기',
+    reupload: '다시 올리기'
+  },
+  en: {
+    uploadPrompt: 'Upload a photo of your palm',
+    uploadHint: 'Best taken in good lighting and clearly focused',
+    previewAlt: 'Palm preview',
+    reupload: 'Upload Again'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
 
 const isModalOpen = ref(false);
 const desktopInput = ref(null);

@@ -4,14 +4,14 @@
       <div v-if="isOpen" class="modal-overlay" @click="close">
         <div class="bottom-sheet" @click.stop>
           <div class="sheet-header">
-            <h3>사진 업로드 방식</h3>
+            <h3>{{ t.title }}</h3>
             <button class="close-btn" @click="close">✕</button>
           </div>
 
           <div class="sheet-body">
             <label class="upload-option">
               <div class="option-icon">📷</div>
-              <div class="option-text">카메라로 촬영하기</div>
+              <div class="option-text">{{ t.camera }}</div>
               <input
                 type="file"
                 accept="image/*"
@@ -23,7 +23,7 @@
 
             <label class="upload-option">
               <div class="option-icon">🖼️</div>
-              <div class="option-text">앨범에서 선택하기</div>
+              <div class="option-text">{{ t.album }}</div>
               <input
                 type="file"
                 accept="image/*"
@@ -39,15 +39,30 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  isOpen: Boolean
-})
+import { computed } from 'vue';
+import { useLocale } from '../composables/useLocale';
 
-const emit = defineEmits(['close', 'file-selected'])
+defineProps({ isOpen: Boolean });
+const emit = defineEmits(['close', 'file-selected']);
 
-const close = () => {
-  emit('close')
-}
+const { locale } = useLocale();
+
+const STRINGS = {
+  ko: {
+    title: '사진 업로드 방식',
+    camera: '카메라로 촬영하기',
+    album: '앨범에서 선택하기'
+  },
+  en: {
+    title: 'Choose upload method',
+    camera: 'Take with Camera',
+    album: 'Pick from Album'
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+
+const close = () => emit('close');
 
 const handleFileSelect = (event) => {
   const file = event.target.files[0];
@@ -55,7 +70,7 @@ const handleFileSelect = (event) => {
     emit('file-selected', file);
     close();
   }
-}
+};
 </script>
 
 <style scoped>

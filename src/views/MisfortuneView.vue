@@ -1,17 +1,16 @@
 <template>
   <div class="misfortune-view container pb-lg">
     <div class="header-section text-center mb-lg fade-in-up">
-      <h1 class="title">불운 변환기</h1>
-      <p class="subtitle">우주의 섭리 앞에서는 모든 것이 길조입니다</p>
+      <h1 class="title">{{ t.title }}</h1>
+      <p class="subtitle">{{ t.subtitle }}</p>
     </div>
 
     <div class="content-wrapper fade-in-up delay-1">
-      <!-- 1단계: 입력 -->
       <div v-if="stage === 'input'" class="input-area">
         <textarea
           v-model="misfortuneText"
           class="misfortune-input"
-          placeholder="오늘 있었던 안 좋은 일을 적어주세요... (예: 오늘 길 가다가 넘어졌어요)"
+          :placeholder="t.placeholder"
           rows="5"
         ></textarea>
 
@@ -21,39 +20,37 @@
             :disabled="!misfortuneText.trim()"
             @click="goToMode"
           >
-            ✨ 해석 받기
+            {{ t.getReadingBtn }}
           </button>
         </div>
       </div>
 
-      <!-- 2단계: 모드 선택 -->
       <div v-if="stage === 'mode'" class="mode-picker">
-        <h2 class="picker-title text-center">어떤 해석을 원하시나요?</h2>
-        <p class="picker-subtitle text-center">같은 사건, 두 가지 관점</p>
+        <h2 class="picker-title text-center">{{ t.pickerTitle }}</h2>
+        <p class="picker-subtitle text-center">{{ t.pickerSubtitle }}</p>
 
         <div class="mode-cards">
           <button class="mode-card mode-lucky" @click="runTranslate('lucky')">
             <div class="mode-icon">🍀</div>
-            <h3>LuckyAI 모드</h3>
-            <p>우주적 관점에서 무조건<br />좋은 일로 재해석합니다</p>
-            <span class="mode-badge">재치 ∙ 긍정</span>
+            <h3>{{ t.luckyMode }}</h3>
+            <p v-html="t.luckyDesc"></p>
+            <span class="mode-badge">{{ t.luckyBadge }}</span>
           </button>
 
           <button class="mode-card mode-honest" @click="runTranslate('honest')">
             <div class="mode-icon">🧐</div>
-            <h3>객관 해석 모드</h3>
-            <p>균형잡힌 시각에서<br />실질적 통찰을 제시합니다</p>
-            <span class="mode-badge">분석 ∙ 객관</span>
+            <h3>{{ t.honestMode }}</h3>
+            <p v-html="t.honestDesc"></p>
+            <span class="mode-badge">{{ t.honestBadge }}</span>
           </button>
         </div>
 
         <div class="picker-footer text-center mt-lg">
-          <button class="btn-text" @click="stage = 'input'">← 다시 작성</button>
-          <router-link to="/" class="btn-text">🏠 메인으로</router-link>
+          <button class="btn-text" @click="stage = 'input'">{{ t.backToInput }}</button>
+          <router-link to="/" class="btn-text">🏠 {{ t.home }}</router-link>
         </div>
       </div>
 
-      <!-- 3단계: 로딩 -->
       <div v-if="stage === 'loading'" class="loading-area text-center">
         <div class="spinner"></div>
         <p class="loading-text">{{ loadingMessage }}</p>
@@ -62,30 +59,29 @@
         </transition>
       </div>
 
-      <!-- 4단계: 결과 -->
       <div v-if="stage === 'result' && result" class="result-card fade-in-up">
         <div class="result-header">
           <div class="result-mode-badge" :class="`badge-${mode}`">
-            {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🧐 객관 해석 모드' }}
+            {{ mode === 'lucky' ? `🍀 ${t.luckyMode}` : `🧐 ${t.honestMode}` }}
           </div>
           <span v-if="isFallback" class="demo-badge">DEMO</span>
         </div>
 
         <div class="card-header text-center mb-lg">
-          <span class="badge">해석 완료</span>
+          <span class="badge">{{ t.completedBadge }}</span>
           <h2 class="reframed-title" :class="mode === 'lucky' ? 'text-accent' : 'text-honest'">
             {{ result.reframedTitle }}
           </h2>
         </div>
 
         <div class="section mb-lg">
-          <h3>{{ mode === 'lucky' ? '🌌 우주적 관점' : '📋 상황 분석' }}</h3>
+          <h3>{{ mode === 'lucky' ? t.cosmicView : t.situationAnalysis }}</h3>
           <p>{{ result.cosmicReason }}</p>
         </div>
 
         <div class="stats-box mb-lg text-center">
           <div class="stat-item">
-            <span class="stat-label">{{ mode === 'lucky' ? '긍정 나비효과 발동 확률' : '객관적 추정' }}</span>
+            <span class="stat-label">{{ mode === 'lucky' ? t.butterflyProb : t.objectiveEst }}</span>
             <span class="stat-value" :class="mode === 'lucky' ? 'text-accent' : 'text-honest'">
               {{ result.probability }}
             </span>
@@ -93,7 +89,7 @@
         </div>
 
         <div class="section mb-lg">
-          <h3>{{ mode === 'lucky' ? '🎁 다가올 미래의 복' : '💡 배울 수 있는 점' }}</h3>
+          <h3>{{ mode === 'lucky' ? t.futureBlessing : t.lesson }}</h3>
           <p>{{ result.futureBenefit }}</p>
         </div>
 
@@ -105,13 +101,13 @@
 
         <div class="action-group mt-lg text-center">
           <button class="btn btn-primary" @click="showCertificate = true">
-            📜 변환 완료증 발급
+            {{ t.issueCertificate }}
           </button>
           <button class="btn btn-secondary" @click="tryOtherMode">
-            {{ mode === 'lucky' ? '🧐 객관 해석도 보기' : '🍀 LuckyAI 해석도 보기' }}
+            {{ mode === 'lucky' ? t.tryHonestToo : t.tryLuckyToo }}
           </button>
-          <button class="btn btn-secondary" @click="reset">다른 일도 물어보기</button>
-          <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
+          <button class="btn btn-secondary" @click="reset">{{ t.askAnother }}</button>
+          <router-link to="/" class="btn btn-secondary">🏠 {{ t.home }}</router-link>
         </div>
       </div>
     </div>
@@ -128,37 +124,90 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import FallbackNotice from '../components/FallbackNotice.vue';
 import UselessnessMetrics from '../components/UselessnessMetrics.vue';
 import CertificateModal from '../components/CertificateModal.vue';
 import { useGemini } from '../composables/useGemini';
 import { useLoadingTip } from '../composables/useLoadingTip';
+import { useLocale } from '../composables/useLocale';
 
 const { translateMisfortune } = useGemini();
+const { locale } = useLocale();
 
-const stage = ref('input'); // 'input' | 'mode' | 'loading' | 'result'
+const STRINGS = {
+  ko: {
+    title: '불운 변환기',
+    subtitle: '우주의 섭리 앞에서는 모든 것이 길조입니다',
+    placeholder: '오늘 있었던 안 좋은 일을 적어주세요... (예: 오늘 길 가다가 넘어졌어요)',
+    getReadingBtn: '✨ 해석 받기',
+    pickerTitle: '어떤 해석을 원하시나요?',
+    pickerSubtitle: '같은 사건, 두 가지 관점',
+    luckyMode: 'LuckyAI 모드',
+    luckyDesc: '우주적 관점에서 무조건<br />좋은 일로 재해석합니다',
+    luckyBadge: '재치 ∙ 긍정',
+    honestMode: '객관 해석 모드',
+    honestDesc: '균형잡힌 시각에서<br />실질적 통찰을 제시합니다',
+    honestBadge: '분석 ∙ 객관',
+    backToInput: '← 다시 작성',
+    home: '메인으로',
+    completedBadge: '해석 완료',
+    cosmicView: '🌌 우주적 관점',
+    situationAnalysis: '📋 상황 분석',
+    butterflyProb: '긍정 나비효과 발동 확률',
+    objectiveEst: '객관적 추정',
+    futureBlessing: '🎁 다가올 미래의 복',
+    lesson: '💡 배울 수 있는 점',
+    issueCertificate: '📜 변환 완료증 발급',
+    tryHonestToo: '🧐 객관 해석도 보기',
+    tryLuckyToo: '🍀 LuckyAI 해석도 보기',
+    askAnother: '다른 일도 물어보기',
+    loadingLucky: ['부정적 에너지를 정화하는 중...', '우주의 큰 그림을 해석하는 중...', '행운의 주파수를 맞추는 중...', '별의 정렬을 확인하는 중...'],
+    loadingHonest: ['상황을 객관적으로 정리하는 중...', '균형잡힌 관점을 분석하는 중...', '실질적 통찰을 정리하는 중...']
+  },
+  en: {
+    title: 'Misfortune Reframer',
+    subtitle: 'In the face of cosmic order, all is auspicious',
+    placeholder: "Tell us something unfortunate that happened today... (e.g., I tripped on the street today)",
+    getReadingBtn: '✨ Get Reading',
+    pickerTitle: 'Which reading would you like?',
+    pickerSubtitle: 'Same event, two perspectives',
+    luckyMode: 'LuckyAI Mode',
+    luckyDesc: 'Reframes from a cosmic angle<br />into something good, no matter what',
+    luckyBadge: 'Witty ∙ Positive',
+    honestMode: 'Objective Mode',
+    honestDesc: 'Offers practical insight<br />from a balanced perspective',
+    honestBadge: 'Analysis ∙ Objective',
+    backToInput: '← Edit Input',
+    home: 'Home',
+    completedBadge: 'Reading Complete',
+    cosmicView: '🌌 Cosmic Perspective',
+    situationAnalysis: '📋 Situation Analysis',
+    butterflyProb: 'Positive butterfly-effect probability',
+    objectiveEst: 'Objective Estimate',
+    futureBlessing: '🎁 Future Blessing Ahead',
+    lesson: '💡 Lesson You Can Take',
+    issueCertificate: '📜 Issue Reframe Certificate',
+    tryHonestToo: '🧐 Try Objective Mode',
+    tryLuckyToo: '🍀 Try LuckyAI Mode',
+    askAnother: 'Ask About Something Else',
+    loadingLucky: ['Purifying negative energy...', 'Reading the cosmic big picture...', 'Tuning to the frequency of luck...', 'Checking the alignment of stars...'],
+    loadingHonest: ['Organizing the situation objectively...', 'Analyzing balanced perspectives...', 'Compiling practical insights...']
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+
+const stage = ref('input');
 const misfortuneText = ref('');
 const result = ref(null);
 const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
 const showCertificate = ref(false);
-const loadingMessage = ref('우주의 기운을 모으는 중...');
+const loadingMessage = ref('');
 
 const { tip: loadingTip } = useLoadingTip(stage);
-
-const loadingMessagesLucky = [
-  '부정적 에너지를 정화하는 중...',
-  '우주의 큰 그림을 해석하는 중...',
-  '행운의 주파수를 맞추는 중...',
-  '별의 정렬을 확인하는 중...'
-];
-const loadingMessagesHonest = [
-  '상황을 객관적으로 정리하는 중...',
-  '균형잡힌 관점을 분석하는 중...',
-  '실질적 통찰을 정리하는 중...'
-];
 
 const goToMode = () => {
   if (!misfortuneText.value.trim()) return;
@@ -168,7 +217,7 @@ const goToMode = () => {
 const runTranslate = async (selectedMode) => {
   mode.value = selectedMode;
   stage.value = 'loading';
-  const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
+  const messages = selectedMode === 'honest' ? t.value.loadingHonest : t.value.loadingLucky;
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
   const { data, isFallback: fb } = await translateMisfortune(misfortuneText.value, selectedMode);

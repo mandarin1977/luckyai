@@ -1,16 +1,15 @@
 <template>
   <div class="saju-view container pb-lg">
     <div class="header-section text-center mb-lg fade-in-up">
-      <h1 class="title">사주 풀이</h1>
-      <p class="subtitle">四柱 — 네 기둥에 담긴 당신의 이야기</p>
+      <h1 class="title">{{ t.title }}</h1>
+      <p class="subtitle">{{ t.subtitle }}</p>
     </div>
 
     <div class="content-wrapper fade-in-up delay-1">
-      <!-- 1단계: 생년월일시 입력 -->
       <div v-if="stage === 'input'" class="input-area">
         <div class="form-grid">
           <div class="form-row">
-            <label class="form-label">생년월일</label>
+            <label class="form-label">{{ t.birthDateLabel }}</label>
             <input
               v-model="birthDate"
               type="date"
@@ -21,46 +20,46 @@
           </div>
 
           <div class="form-row">
-            <label class="form-label">달력</label>
+            <label class="form-label">{{ t.calendarLabel }}</label>
             <div class="toggle-group">
               <button
                 class="toggle-btn"
                 :class="{ active: calendar === '양력' }"
                 @click="calendar = '양력'"
-              >양력</button>
+              >{{ t.solar }}</button>
               <button
                 class="toggle-btn"
                 :class="{ active: calendar === '음력' }"
                 @click="calendar = '음력'"
-              >음력</button>
+              >{{ t.lunar }}</button>
             </div>
           </div>
 
           <div class="form-row">
-            <label class="form-label">성별</label>
+            <label class="form-label">{{ t.genderLabel }}</label>
             <div class="toggle-group">
               <button
                 class="toggle-btn"
                 :class="{ active: gender === '남' }"
                 @click="gender = '남'"
-              >남</button>
+              >{{ t.male }}</button>
               <button
                 class="toggle-btn"
                 :class="{ active: gender === '여' }"
                 @click="gender = '여'"
-              >여</button>
+              >{{ t.female }}</button>
             </div>
           </div>
 
           <div class="form-row">
-            <label class="form-label">출생시간</label>
+            <label class="form-label">{{ t.birthHourLabel }}</label>
             <select v-model="birthHour" class="form-input">
-              <option value="모름">모름 (시주 생략)</option>
+              <option value="모름">{{ t.unknown }}</option>
               <option
                 v-for="h in 24"
                 :key="h - 1"
                 :value="`${h - 1}시`"
-              >{{ `${h - 1}시 (${hourName(h - 1)})` }}</option>
+              >{{ formatHourOption(h - 1) }}</option>
             </select>
           </div>
         </div>
@@ -71,69 +70,67 @@
             :disabled="!birthDate"
             @click="goToMode"
           >
-            ✨ 사주 풀이 받기
+            {{ t.getReadingBtn }}
           </button>
         </div>
       </div>
 
-      <!-- 2단계: 명식 확인 + 모드 선택 -->
       <div v-if="stage === 'mode' && saju" class="mode-picker">
-        <!-- 계산된 명식(命式) 표시 -->
         <div class="myeongsik-card">
           <div class="myeongsik-header">
-            <span class="myeongsik-title">명식(命式)</span>
+            <span class="myeongsik-title">{{ t.myeongsik }}</span>
             <span class="myeongsik-element" :class="`elem-${elementKey(saju.mainElement)}`">
-              {{ elementIcon(saju.mainElement) }} {{ saju.mainElement }}일간 · {{ saju.dayStem.hanzi }}({{ saju.dayStem.korean }})
+              {{ elementIcon(saju.mainElement) }} {{ elementName(saju.mainElement) }}{{ t.elementSuffix }} · {{ saju.dayStem.hanzi }}({{ saju.dayStem.korean }})
             </span>
           </div>
           <div class="pillars-grid">
             <div class="pillar-cell">
-              <div class="pillar-label">시주</div>
+              <div class="pillar-label">{{ t.hourPillar }}</div>
               <div class="pillar-hanzi">{{ saju.hourPillar ? saju.hourPillar.hanzi : '—' }}</div>
-              <div class="pillar-korean">{{ saju.hourPillar ? saju.hourPillar.korean : '시간 미상' }}</div>
+              <div class="pillar-korean">{{ saju.hourPillar ? saju.hourPillar.korean : t.hourUnknown }}</div>
             </div>
             <div class="pillar-cell pillar-self">
-              <div class="pillar-label">일주</div>
+              <div class="pillar-label">{{ t.dayPillar }}</div>
               <div class="pillar-hanzi">{{ saju.dayPillar.hanzi }}</div>
               <div class="pillar-korean">{{ saju.dayPillar.korean }}</div>
-              <div class="pillar-sub">← 본인</div>
+              <div class="pillar-sub">{{ t.selfMark }}</div>
             </div>
             <div class="pillar-cell">
-              <div class="pillar-label">월주</div>
+              <div class="pillar-label">{{ t.monthPillar }}</div>
               <div class="pillar-hanzi">{{ saju.monthPillar.hanzi }}</div>
               <div class="pillar-korean">{{ saju.monthPillar.korean }}</div>
             </div>
             <div class="pillar-cell">
-              <div class="pillar-label">연주</div>
+              <div class="pillar-label">{{ t.yearPillar }}</div>
               <div class="pillar-hanzi">{{ saju.yearPillar.hanzi }}</div>
               <div class="pillar-korean">{{ saju.yearPillar.korean }}</div>
             </div>
           </div>
-          <p class="myeongsik-note">만세력 기준으로 계산된 정확한 명식입니다</p>
+          <p class="myeongsik-note">{{ t.myeongsikNote }}</p>
         </div>
 
-        <h2 class="picker-title text-center">어떤 해석을 원하시나요?</h2>
-        <p class="picker-subtitle text-center">같은 명식, 두 가지 관점</p>
+        <h2 class="picker-title text-center">{{ t.pickerTitle }}</h2>
+        <p class="picker-subtitle text-center">{{ t.pickerSubtitle }}</p>
 
         <div class="mode-cards">
           <button class="mode-card mode-lucky" @click="runAnalysis('lucky')">
             <div class="mode-icon">🍀</div>
-            <h3>LuckyAI 모드</h3>
-            <p>어떤 명식이든 무조건<br />왕업지상(王業之相)으로 풀이</p>
-            <span class="mode-badge">재치 ∙ 긍정</span>
+            <h3>{{ t.luckyMode }}</h3>
+            <p v-html="t.luckyDesc"></p>
+            <span class="mode-badge">{{ t.luckyBadge }}</span>
           </button>
 
           <button class="mode-card mode-honest" @click="runAnalysis('honest')">
             <div class="mode-icon">🔯</div>
-            <h3>전통 명리 모드</h3>
-            <p>명리학 원리대로<br />가감없이 분석합니다</p>
-            <span class="mode-badge">학문 ∙ 객관</span>
+            <h3>{{ t.honestMode }}</h3>
+            <p v-html="t.honestDesc"></p>
+            <span class="mode-badge">{{ t.honestBadge }}</span>
           </button>
         </div>
 
         <div class="picker-footer text-center mt-lg">
-          <button class="btn-text" @click="stage = 'input'">← 다시 입력</button>
-          <router-link to="/" class="btn-text">🏠 메인으로</router-link>
+          <button class="btn-text" @click="stage = 'input'">{{ t.backToInput }}</button>
+          <router-link to="/" class="btn-text">🏠 {{ t.home }}</router-link>
         </div>
       </div>
 
@@ -146,11 +143,10 @@
         </transition>
       </div>
 
-      <!-- 4단계: 결과 -->
       <div v-if="stage === 'result' && result && saju" class="result-card fade-in-up">
         <div class="result-header">
           <div class="result-mode-badge" :class="`badge-${mode}`">
-            {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🔯 전통 명리 모드' }}
+            {{ mode === 'lucky' ? `🍀 ${t.luckyMode}` : `🔯 ${t.honestMode}` }}
           </div>
           <span v-if="isFallback" class="demo-badge">DEMO</span>
         </div>
@@ -168,12 +164,12 @@
                 a 15.9155 15.9155 0 0 1 0 31.831
                 a 15.9155 15.9155 0 0 1 0 -31.831"
             />
-            <text x="18" y="20.35" class="percentage">{{ result.score }}점</text>
+            <text x="18" y="20.35" class="percentage">{{ result.score }}{{ t.scoreUnit }}</text>
           </svg>
         </div>
 
         <div class="element-badge" :class="`elem-${elementKey(saju.mainElement)}`">
-          {{ elementIcon(saju.mainElement) }} {{ saju.mainElement }}일간 · {{ saju.dayStem.hanzi }}({{ saju.dayStem.korean }})
+          {{ elementIcon(saju.mainElement) }} {{ elementName(saju.mainElement) }}{{ t.elementSuffix }} · {{ saju.dayStem.hanzi }}({{ saju.dayStem.korean }})
         </div>
 
         <h2 class="main-fortune text-accent text-center">{{ result.mainFortune }}</h2>
@@ -181,52 +177,52 @@
         <div class="analysis-grid">
           <div class="analysis-item">
             <h4>
-              연주
+              {{ t.yearPillar }}
               <span class="pillar-ganzi">{{ saju.yearPillar.hanzi }}({{ saju.yearPillar.korean }})</span>
-              <span class="pillar-sub">· 초년/조상</span>
+              <span class="pillar-sub">· {{ t.yearMeaning }}</span>
             </h4>
             <p>{{ result.analysis.yearPillar }}</p>
           </div>
           <div class="analysis-item">
             <h4>
-              월주
+              {{ t.monthPillar }}
               <span class="pillar-ganzi">{{ saju.monthPillar.hanzi }}({{ saju.monthPillar.korean }})</span>
-              <span class="pillar-sub">· 청년/부모</span>
+              <span class="pillar-sub">· {{ t.monthMeaning }}</span>
             </h4>
             <p>{{ result.analysis.monthPillar }}</p>
           </div>
           <div class="analysis-item">
             <h4>
-              일주
+              {{ t.dayPillar }}
               <span class="pillar-ganzi">{{ saju.dayPillar.hanzi }}({{ saju.dayPillar.korean }})</span>
-              <span class="pillar-sub">· 본인/배우자</span>
+              <span class="pillar-sub">· {{ t.dayMeaning }}</span>
             </h4>
             <p>{{ result.analysis.dayPillar }}</p>
           </div>
           <div class="analysis-item">
             <h4>
-              시주
+              {{ t.hourPillar }}
               <span class="pillar-ganzi">
-                {{ saju.hourPillar ? `${saju.hourPillar.hanzi}(${saju.hourPillar.korean})` : '시간 미상' }}
+                {{ saju.hourPillar ? `${saju.hourPillar.hanzi}(${saju.hourPillar.korean})` : t.hourUnknown }}
               </span>
-              <span class="pillar-sub">· 말년/자녀</span>
+              <span class="pillar-sub">· {{ t.hourMeaning }}</span>
             </h4>
             <p>{{ result.analysis.hourPillar }}</p>
           </div>
         </div>
 
         <div class="prediction-box">
-          <h3>{{ mode === 'lucky' ? '🌟 향후 1년 길운' : '📖 향후 1년 흐름' }}</h3>
+          <h3>{{ mode === 'lucky' ? t.predictionLucky : t.predictionHonest }}</h3>
           <p>{{ result.prediction }}</p>
         </div>
 
         <div class="lucky-items">
           <div class="lucky-item">
-            <span class="label">{{ mode === 'lucky' ? '행운의 숫자' : '어울리는 숫자' }}</span>
+            <span class="label">{{ mode === 'lucky' ? t.luckyNumberLabel : t.numberLabelHonest }}</span>
             <span class="value">{{ result.luckyNumber }}</span>
           </div>
           <div class="lucky-item">
-            <span class="label">{{ mode === 'lucky' ? '행운의 색상' : '보완 색상' }}</span>
+            <span class="label">{{ mode === 'lucky' ? t.luckyColorLabel : t.colorLabelHonest }}</span>
             <span class="value">{{ result.luckyColor }}</span>
           </div>
         </div>
@@ -235,13 +231,13 @@
 
         <div class="action-group mt-lg text-center">
           <button class="btn btn-primary" @click="showCertificate = true">
-            📜 사주 길조 인증서 발급
+            {{ t.issueCertificate }}
           </button>
           <button class="btn btn-secondary" @click="tryOtherMode">
-            {{ mode === 'lucky' ? '🔯 전통 명리도 보기' : '🍀 LuckyAI 해석도 보기' }}
+            {{ mode === 'lucky' ? t.tryHonestToo : t.tryLuckyToo }}
           </button>
-          <button class="btn btn-secondary" @click="reset">다시하기</button>
-          <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
+          <button class="btn btn-secondary" @click="reset">{{ t.tryAgain }}</button>
+          <router-link to="/" class="btn btn-secondary">🏠 {{ t.home }}</router-link>
         </div>
       </div>
     </div>
@@ -264,45 +260,162 @@ import UselessnessMetrics from '../components/UselessnessMetrics.vue';
 import CertificateModal from '../components/CertificateModal.vue';
 import { useGemini } from '../composables/useGemini';
 import { useLoadingTip } from '../composables/useLoadingTip';
+import { useLocale } from '../composables/useLocale';
 import { calculateSaju } from '../utils/saju';
 
 const { analyzeSaju } = useGemini();
+const { locale } = useLocale();
 
-const stage = ref('input'); // 'input' | 'mode' | 'loading' | 'result'
+const STRINGS = {
+  ko: {
+    title: '사주 풀이',
+    subtitle: '四柱 — 네 기둥에 담긴 당신의 이야기',
+    birthDateLabel: '생년월일',
+    calendarLabel: '달력',
+    solar: '양력',
+    lunar: '음력',
+    genderLabel: '성별',
+    male: '남',
+    female: '여',
+    birthHourLabel: '출생시간',
+    unknown: '모름 (시주 생략)',
+    getReadingBtn: '✨ 사주 풀이 받기',
+    myeongsik: '명식(命式)',
+    elementSuffix: '일간',
+    yearPillar: '연주',
+    monthPillar: '월주',
+    dayPillar: '일주',
+    hourPillar: '시주',
+    selfMark: '← 본인',
+    hourUnknown: '시간 미상',
+    myeongsikNote: '만세력 기준으로 계산된 정확한 명식입니다',
+    pickerTitle: '어떤 해석을 원하시나요?',
+    pickerSubtitle: '같은 명식, 두 가지 관점',
+    luckyMode: 'LuckyAI 모드',
+    luckyDesc: '어떤 명식이든 무조건<br />왕업지상(王業之相)으로 풀이',
+    luckyBadge: '재치 ∙ 긍정',
+    honestMode: '전통 명리 모드',
+    honestDesc: '명리학 원리대로<br />가감없이 분석합니다',
+    honestBadge: '학문 ∙ 객관',
+    backToInput: '← 다시 입력',
+    home: '메인으로',
+    scoreUnit: '점',
+    yearMeaning: '초년/조상',
+    monthMeaning: '청년/부모',
+    dayMeaning: '본인/배우자',
+    hourMeaning: '말년/자녀',
+    predictionLucky: '🌟 향후 1년 길운',
+    predictionHonest: '📖 향후 1년 흐름',
+    luckyNumberLabel: '행운의 숫자',
+    numberLabelHonest: '어울리는 숫자',
+    luckyColorLabel: '행운의 색상',
+    colorLabelHonest: '보완 색상',
+    issueCertificate: '📜 사주 길조 인증서 발급',
+    tryHonestToo: '🔯 전통 명리도 보기',
+    tryLuckyToo: '🍀 LuckyAI 해석도 보기',
+    tryAgain: '다시하기',
+    invalidDate: '날짜를 확인해주세요.',
+    loadingLucky: ['사주 팔자를 뽑는 중...', '왕업지상을 확인하는 중...', '오행의 조화를 읽는 중...'],
+    loadingHonest: ['명식을 구성하는 중...', '오행의 균형을 분석하는 중...', '전통 명리학 원리를 대조하는 중...']
+  },
+  en: {
+    title: 'Saju Reading',
+    subtitle: '四柱 — Your story in four pillars',
+    birthDateLabel: 'Date of Birth',
+    calendarLabel: 'Calendar',
+    solar: 'Solar',
+    lunar: 'Lunar',
+    genderLabel: 'Gender',
+    male: 'M',
+    female: 'F',
+    birthHourLabel: 'Hour of Birth',
+    unknown: 'Unknown (omit Hour Pillar)',
+    getReadingBtn: '✨ Get Saju Reading',
+    myeongsik: 'Natal Chart (命式)',
+    elementSuffix: ' Day Stem',
+    yearPillar: 'Year',
+    monthPillar: 'Month',
+    dayPillar: 'Day',
+    hourPillar: 'Hour',
+    selfMark: '← You',
+    hourUnknown: 'hour unknown',
+    myeongsikNote: 'Accurately calculated by manse-ryeok (萬歲曆)',
+    pickerTitle: 'Which reading would you like?',
+    pickerSubtitle: 'Same chart, two perspectives',
+    luckyMode: 'LuckyAI Mode',
+    luckyDesc: 'Reads every chart as<br />royal-class destiny (王業之相)',
+    luckyBadge: 'Witty ∙ Positive',
+    honestMode: 'Traditional Mode',
+    honestDesc: 'Analyzes by Saju principles<br />without exaggeration',
+    honestBadge: 'Academic ∙ Objective',
+    backToInput: '← Edit Input',
+    home: 'Home',
+    scoreUnit: ' pts',
+    yearMeaning: 'Early life / Ancestors',
+    monthMeaning: 'Youth / Parents',
+    dayMeaning: 'Self / Spouse',
+    hourMeaning: 'Late life / Children',
+    predictionLucky: '🌟 Great Fortune Ahead (1 yr)',
+    predictionHonest: '📖 Outlook for the Year Ahead',
+    luckyNumberLabel: 'Lucky Number',
+    numberLabelHonest: 'Suiting Number',
+    luckyColorLabel: 'Lucky Color',
+    colorLabelHonest: 'Complementary Color',
+    issueCertificate: '📜 Issue Saju Certificate',
+    tryHonestToo: '🔯 Try Traditional Mode',
+    tryLuckyToo: '🍀 Try LuckyAI Mode',
+    tryAgain: 'Try Again',
+    invalidDate: 'Please check the date.',
+    loadingLucky: ['Drawing the Four Pillars...', 'Confirming royal-class destiny...', 'Reading the harmony of Five Elements...'],
+    loadingHonest: ['Constructing the natal chart...', 'Analyzing the balance of Five Elements...', 'Cross-referencing classical Saju principles...']
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+
+const stage = ref('input');
 const birthDate = ref('');
 const birthHour = ref('모름');
 const calendar = ref('양력');
 const gender = ref('남');
 
-const saju = ref(null);         // 계산된 명식(기둥/오행/일간)
-const result = ref(null);       // Gemini 해석 결과
+const saju = ref(null);
+const result = ref(null);
 const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
 const showCertificate = ref(false);
-const loadingMessage = ref('사주 팔자를 뽑는 중...');
+const loadingMessage = ref('');
 
 const { tip: loadingTip } = useLoadingTip(stage);
 
 const todayDate = computed(() => new Date().toISOString().slice(0, 10));
 
-const hourName = (h) => {
-  // 12간지 시 대략 매핑 (2시간 단위)
-  const zodiac = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
-  const idx = Math.floor(((h + 1) % 24) / 2);
-  return `${zodiac[idx]}시`;
+const formatHourOption = (h) => {
+  if (locale.value === 'en') {
+    const ampm = h < 12 ? 'AM' : 'PM';
+    const display = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+    return `${display}:00 ${ampm} (${zodiacEn(h)})`;
+  }
+  return `${h}시 (${zodiacKo(h)})`;
 };
 
-const loadingMessagesLucky = [
-  '사주 팔자를 뽑는 중...',
-  '왕업지상을 확인하는 중...',
-  '오행의 조화를 읽는 중...'
-];
-const loadingMessagesHonest = [
-  '명식을 구성하는 중...',
-  '오행의 균형을 분석하는 중...',
-  '전통 명리학 원리를 대조하는 중...'
-];
+const zodiacKo = (h) => {
+  const z = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
+  return `${z[Math.floor(((h + 1) % 24) / 2)]}시`;
+};
+
+const zodiacEn = (h) => {
+  const z = ['Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Goat', 'Monkey', 'Rooster', 'Dog', 'Pig'];
+  return z[Math.floor(((h + 1) % 24) / 2)];
+};
+
+const elementName = (ko) => {
+  if (locale.value === 'en') {
+    return { '목': 'Wood', '화': 'Fire', '토': 'Earth', '금': 'Metal', '수': 'Water' }[ko] || ko;
+  }
+  return ko;
+};
 
 const goToMode = () => {
   if (!birthDate.value) return;
@@ -311,7 +424,7 @@ const goToMode = () => {
     stage.value = 'mode';
   } catch (error) {
     console.error('사주 계산 실패:', error);
-    alert('날짜를 확인해주세요.');
+    alert(t.value.invalidDate);
   }
 };
 
@@ -319,7 +432,7 @@ const runAnalysis = async (selectedMode) => {
   if (!saju.value) return;
   mode.value = selectedMode;
   stage.value = 'loading';
-  const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
+  const messages = selectedMode === 'honest' ? t.value.loadingHonest : t.value.loadingLucky;
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
   const { data, isFallback: fb } = await analyzeSaju(saju.value, gender.value, selectedMode);

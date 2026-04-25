@@ -1,46 +1,43 @@
 <template>
   <div class="palm-reading-view container pb-lg">
     <div class="header-section text-center mb-lg fade-in-up">
-      <h1 class="title">손금 분석</h1>
-      <p class="subtitle">우주의 기운이 당신의 손바닥에 모여있습니다</p>
+      <h1 class="title">{{ t.title }}</h1>
+      <p class="subtitle">{{ t.subtitle }}</p>
     </div>
 
     <div class="content-wrapper fade-in-up delay-1">
-      <!-- 1단계: 업로더 -->
       <ImageUploader
         v-if="stage === 'upload'"
         @image-ready="handleImageReady"
         @reset="handleImageReset"
       />
 
-      <!-- 2단계: 모드 선택 -->
       <div v-if="stage === 'mode'" class="mode-picker">
-        <h2 class="picker-title text-center">어떤 해석을 원하시나요?</h2>
-        <p class="picker-subtitle text-center">같은 손금, 두 가지 관점</p>
+        <h2 class="picker-title text-center">{{ t.pickerTitle }}</h2>
+        <p class="picker-subtitle text-center">{{ t.pickerSubtitle }}</p>
 
         <div class="mode-cards">
           <button class="mode-card mode-lucky" @click="startAnalysis('lucky')">
             <div class="mode-icon">🍀</div>
-            <h3>LuckyAI 모드</h3>
-            <p>어떤 손금이든 무조건<br />길조로 재해석합니다</p>
-            <span class="mode-badge">재치 ∙ 긍정</span>
+            <h3>{{ t.luckyMode }}</h3>
+            <p v-html="t.luckyDesc"></p>
+            <span class="mode-badge">{{ t.luckyBadge }}</span>
           </button>
 
           <button class="mode-card mode-honest" @click="startAnalysis('honest')">
             <div class="mode-icon">🔮</div>
-            <h3>전통 해석 모드</h3>
-            <p>동양 손금학 원리대로<br />가감없이 해석합니다</p>
-            <span class="mode-badge">학문 ∙ 객관</span>
+            <h3>{{ t.honestMode }}</h3>
+            <p v-html="t.honestDesc"></p>
+            <span class="mode-badge">{{ t.honestBadge }}</span>
           </button>
         </div>
 
         <div class="picker-footer text-center mt-lg">
-          <button class="btn-text" @click="handleImageReset">← 사진 다시 올리기</button>
-          <router-link to="/" class="btn-text">🏠 메인으로</router-link>
+          <button class="btn-text" @click="handleImageReset">{{ t.backToUpload }}</button>
+          <router-link to="/" class="btn-text">🏠 {{ t.home }}</router-link>
         </div>
       </div>
 
-      <!-- 3단계: 로딩 -->
       <div v-if="stage === 'loading'" class="loading-area text-center">
         <div class="spinner"></div>
         <p class="loading-text">{{ loadingMessage }}</p>
@@ -49,11 +46,10 @@
         </transition>
       </div>
 
-      <!-- 4단계: 결과 -->
       <div v-if="stage === 'result' && result" class="result-card fade-in-up">
         <div class="result-header">
           <div class="result-mode-badge" :class="`badge-${mode}`">
-            {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🔮 전통 해석 모드' }}
+            {{ mode === 'lucky' ? `🍀 ${t.luckyMode}` : `🔮 ${t.honestMode}` }}
           </div>
           <span v-if="isFallback" class="demo-badge">DEMO</span>
         </div>
@@ -71,7 +67,7 @@
                 a 15.9155 15.9155 0 0 1 0 31.831
                 a 15.9155 15.9155 0 0 1 0 -31.831"
             />
-            <text x="18" y="20.35" class="percentage">{{ result.score }}점</text>
+            <text x="18" y="20.35" class="percentage">{{ result.score }}{{ t.scoreUnit }}</text>
           </svg>
         </div>
 
@@ -79,35 +75,35 @@
 
         <div class="analysis-grid">
           <div class="analysis-item">
-            <h4>생명선</h4>
+            <h4>{{ t.lifeLine }}</h4>
             <p>{{ result.analysis.lifeLine }}</p>
           </div>
           <div class="analysis-item">
-            <h4>감정선</h4>
+            <h4>{{ t.heartLine }}</h4>
             <p>{{ result.analysis.heartLine }}</p>
           </div>
           <div class="analysis-item">
-            <h4>지능선</h4>
+            <h4>{{ t.headLine }}</h4>
             <p>{{ result.analysis.headLine }}</p>
           </div>
           <div class="analysis-item">
-            <h4>운명선</h4>
+            <h4>{{ t.fateLine }}</h4>
             <p>{{ result.analysis.fateLine }}</p>
           </div>
         </div>
 
         <div class="prediction-box">
-          <h3>{{ mode === 'lucky' ? '🌟 향후 1년 예언' : '📖 향후 1년 전망' }}</h3>
+          <h3>{{ mode === 'lucky' ? t.predictionLucky : t.predictionHonest }}</h3>
           <p>{{ result.prediction }}</p>
         </div>
 
         <div class="lucky-items">
           <div class="lucky-item">
-            <span class="label">{{ mode === 'lucky' ? '행운의 숫자' : '추천 숫자' }}</span>
+            <span class="label">{{ mode === 'lucky' ? t.luckyNumberLabel : t.numberLabelHonest }}</span>
             <span class="value">{{ result.luckyNumber }}</span>
           </div>
           <div class="lucky-item">
-            <span class="label">{{ mode === 'lucky' ? '행운의 색상' : '어울리는 색상' }}</span>
+            <span class="label">{{ mode === 'lucky' ? t.luckyColorLabel : t.colorLabelHonest }}</span>
             <span class="value">{{ result.luckyColor }}</span>
           </div>
         </div>
@@ -116,13 +112,13 @@
 
         <div class="action-group mt-lg text-center">
           <button class="btn btn-primary" @click="showCertificate = true">
-            📜 길조 인증서 발급
+            {{ t.issueCertificate }}
           </button>
           <button class="btn btn-secondary" @click="tryOtherMode">
-            {{ mode === 'lucky' ? '🔮 전통 해석도 보기' : '🍀 LuckyAI 해석도 보기' }}
+            {{ mode === 'lucky' ? t.tryHonestToo : t.tryLuckyToo }}
           </button>
-          <button class="btn btn-secondary" @click="reset">다시하기</button>
-          <router-link to="/" class="btn btn-secondary">🏠 메인으로</router-link>
+          <button class="btn btn-secondary" @click="reset">{{ t.tryAgain }}</button>
+          <router-link to="/" class="btn btn-secondary">🏠 {{ t.home }}</router-link>
         </div>
       </div>
     </div>
@@ -139,37 +135,95 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ImageUploader from '../components/ImageUploader.vue';
 import FallbackNotice from '../components/FallbackNotice.vue';
 import UselessnessMetrics from '../components/UselessnessMetrics.vue';
 import CertificateModal from '../components/CertificateModal.vue';
 import { useGemini } from '../composables/useGemini';
 import { useLoadingTip } from '../composables/useLoadingTip';
+import { useLocale } from '../composables/useLocale';
 
 const { analyzePalm } = useGemini();
+const { locale } = useLocale();
 
-const stage = ref('upload'); // 'upload' | 'mode' | 'loading' | 'result'
+const STRINGS = {
+  ko: {
+    title: '손금 분석',
+    subtitle: '우주의 기운이 당신의 손바닥에 모여있습니다',
+    pickerTitle: '어떤 해석을 원하시나요?',
+    pickerSubtitle: '같은 손금, 두 가지 관점',
+    luckyMode: 'LuckyAI 모드',
+    luckyDesc: '어떤 손금이든 무조건<br />길조로 재해석합니다',
+    luckyBadge: '재치 ∙ 긍정',
+    honestMode: '전통 해석 모드',
+    honestDesc: '동양 손금학 원리대로<br />가감없이 해석합니다',
+    honestBadge: '학문 ∙ 객관',
+    backToUpload: '← 사진 다시 올리기',
+    home: '메인으로',
+    scoreUnit: '점',
+    lifeLine: '생명선',
+    heartLine: '감정선',
+    headLine: '지능선',
+    fateLine: '운명선',
+    predictionLucky: '🌟 향후 1년 예언',
+    predictionHonest: '📖 향후 1년 전망',
+    luckyNumberLabel: '행운의 숫자',
+    numberLabelHonest: '추천 숫자',
+    luckyColorLabel: '행운의 색상',
+    colorLabelHonest: '어울리는 색상',
+    issueCertificate: '📜 길조 인증서 발급',
+    tryHonestToo: '🔮 전통 해석도 보기',
+    tryLuckyToo: '🍀 LuckyAI 해석도 보기',
+    tryAgain: '다시하기',
+    loadingLucky: ['우주의 기운을 모으는 중...', '별의 정렬을 확인하는 중...', '대길의 기운을 해석하는 중...'],
+    loadingHonest: ['손금의 결을 살피는 중...', '전통 손금학 원리를 대조하는 중...', '관찰 결과를 정리하는 중...']
+  },
+  en: {
+    title: 'Palm Reading',
+    subtitle: "Cosmic energy gathers on your palm",
+    pickerTitle: 'Which reading would you like?',
+    pickerSubtitle: 'Same palm, two perspectives',
+    luckyMode: 'LuckyAI Mode',
+    luckyDesc: 'Every palm is reinterpreted<br />as great fortune, no matter what',
+    luckyBadge: 'Witty ∙ Positive',
+    honestMode: 'Traditional Mode',
+    honestDesc: 'Read by Eastern palmistry principles<br />without exaggeration',
+    honestBadge: 'Academic ∙ Objective',
+    backToUpload: '← Upload another photo',
+    home: 'Home',
+    scoreUnit: 'pts',
+    lifeLine: 'Life Line',
+    heartLine: 'Heart Line',
+    headLine: 'Head Line',
+    fateLine: 'Fate Line',
+    predictionLucky: '🌟 Prediction for the Year Ahead',
+    predictionHonest: '📖 Outlook for the Year Ahead',
+    luckyNumberLabel: 'Lucky Number',
+    numberLabelHonest: 'Recommended Number',
+    luckyColorLabel: 'Lucky Color',
+    colorLabelHonest: 'Suiting Color',
+    issueCertificate: '📜 Issue Fortune Certificate',
+    tryHonestToo: '🔮 Try Traditional Mode',
+    tryLuckyToo: '🍀 Try LuckyAI Mode',
+    tryAgain: 'Try Again',
+    loadingLucky: ['Gathering cosmic energy...', 'Checking the alignment of stars...', 'Reading the great fortune...'],
+    loadingHonest: ['Examining the palm lines...', 'Cross-referencing palmistry principles...', 'Compiling observations...']
+  }
+};
+
+const t = computed(() => STRINGS[locale.value]);
+
+const stage = ref('upload');
 const imageBase64 = ref(null);
 const result = ref(null);
 const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
 const showCertificate = ref(false);
-const loadingMessage = ref('우주의 기운을 모으는 중...');
+const loadingMessage = ref('');
 
 const { tip: loadingTip } = useLoadingTip(stage);
-
-const loadingMessagesLucky = [
-  '우주의 기운을 모으는 중...',
-  '별의 정렬을 확인하는 중...',
-  '대길의 기운을 해석하는 중...'
-];
-const loadingMessagesHonest = [
-  '손금의 결을 살피는 중...',
-  '전통 손금학 원리를 대조하는 중...',
-  '관찰 결과를 정리하는 중...'
-];
 
 const handleImageReady = (base64) => {
   imageBase64.value = base64;
@@ -184,7 +238,7 @@ const handleImageReset = () => {
 const startAnalysis = async (selectedMode) => {
   mode.value = selectedMode;
   stage.value = 'loading';
-  const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
+  const messages = selectedMode === 'honest' ? t.value.loadingHonest : t.value.loadingLucky;
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
   // useGemini가 fallback을 보장하므로 결과가 항상 있음.
