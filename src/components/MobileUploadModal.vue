@@ -1,39 +1,41 @@
 <template>
-  <transition name="modal-fade">
-    <div v-if="isOpen" class="modal-overlay" @click="close">
-      <div class="bottom-sheet" @click.stop>
-        <div class="sheet-header">
-          <h3>사진 업로드 방식</h3>
-          <button class="close-btn" @click="close">✕</button>
-        </div>
-        
-        <div class="sheet-body">
-          <label class="upload-option">
-            <div class="option-icon">📷</div>
-            <div class="option-text">카메라로 촬영하기</div>
-            <input 
-              type="file" 
-              accept="image/*" 
-              capture="environment"
-              class="hidden-input"
-              @change="handleFileSelect"
-            />
-          </label>
-          
-          <label class="upload-option">
-            <div class="option-icon">🖼️</div>
-            <div class="option-text">앨범에서 선택하기</div>
-            <input 
-              type="file" 
-              accept="image/*"
-              class="hidden-input"
-              @change="handleFileSelect"
-            />
-          </label>
+  <Teleport to="body">
+    <transition name="modal-fade">
+      <div v-if="isOpen" class="modal-overlay" @click="close">
+        <div class="bottom-sheet" @click.stop>
+          <div class="sheet-header">
+            <h3>사진 업로드 방식</h3>
+            <button class="close-btn" @click="close">✕</button>
+          </div>
+
+          <div class="sheet-body">
+            <label class="upload-option">
+              <div class="option-icon">📷</div>
+              <div class="option-text">카메라로 촬영하기</div>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                class="hidden-input"
+                @change="handleFileSelect"
+              />
+            </label>
+
+            <label class="upload-option">
+              <div class="option-icon">🖼️</div>
+              <div class="option-text">앨범에서 선택하기</div>
+              <input
+                type="file"
+                accept="image/*"
+                class="hidden-input"
+                @change="handleFileSelect"
+              />
+            </label>
+          </div>
         </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </Teleport>
 </template>
 
 <script setup>
