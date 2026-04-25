@@ -48,10 +48,13 @@ LuckyAI는 Google Gemini를 활용해 사용자의 손금·사주·일상의 불
 결과 화면에서 **"다른 모드로 보기"** 버튼 하나로 같은 입력에 대한 두 가지 해석을 즉시 비교할 수 있습니다.
 
 ### 😺 운세 클리커 (`/clicker`)
-API 한도가 소진됐을 때 등장하는 미니게임. 캐릭터를 클릭하면 41종의 길조 메시지가 랜덤으로 떠오릅니다. 마일스톤 달성 시 특별 메시지도 표시됩니다.
+캐릭터를 클릭하면 41종의 길조 메시지가 랜덤으로 떠오르는 미니게임. 마일스톤(10/30/50/100/200회) 달성 시 특별 메시지가 표시되고, 5클릭마다 캐릭터 이모지가 12종 중에서 바뀝니다. 도파민형 인터렉션.
+
+### 🥠 운세 로또 (`/lotto`)
+다섯 개의 포춘쿠키 중 하나를 골라 갈라보는 한 번의 의식적 선택형 미니게임. 선택한 쿠키가 흔들리며 갈라지는 애니메이션 → 베이지색 종이 카드에 38종 지혜 메시지 + 행운의 숫자/색이 등장합니다. 클리커보다 진중한 톤.
 
 ### 🌟 오늘의 한 마디 (홈)
-홈 화면에 매일 다른 길조 메시지가 표시됩니다. localStorage에 캐시되어 하루 동안 같은 메시지가 유지됩니다.
+홈 화면에 매일 다른 길조 메시지가 표시됩니다. localStorage에 날짜별로 캐시되어 하루 동안 같은 메시지가 유지되며, '↻ 다른 한 마디' 버튼으로 즉석 변경도 가능합니다.
 
 ---
 
@@ -99,23 +102,25 @@ src/
 │   ├── StarryBackground.vue # 별 패럴럭스 배경
 │   ├── ImageUploader.vue    # 손금 사진 업로더 (모바일 분기)
 │   ├── MobileUploadModal.vue# 모바일용 카메라/앨범 선택 (Teleport)
-│   └── FallbackNotice.vue   # API 실패 시 안내 팝업 + 클리커 진입
+│   └── FallbackNotice.vue   # API 실패 시 안내 팝업 + 클리커/로또 진입
 ├── composables/
 │   ├── useGemini.js         # analyzePalm / analyzeSaju / translateMisfortune
 │   ├── useDevice.js         # 모바일 감지
 │   └── useLoadingTip.js     # 로딩 중 길조 메시지 회전
-├── router/index.js          # /, /palm, /saju, /misfortune, /clicker
+├── router/index.js          # /, /palm, /saju, /misfortune, /clicker, /lotto
 ├── utils/
-│   ├── prompts.js           # 6종 프롬프트 (3 기능 × 2 모드)
-│   ├── saju.js              # lunar-javascript 기반 만세력 계산
-│   ├── fallbacks.js         # API 실패 시 더미 데이터 (12종)
-│   └── clickerMessages.js   # 클리커/오늘의 한 마디 메시지 풀 (41종)
+│   ├── prompts.js                 # 6종 프롬프트 (3 기능 × 2 모드)
+│   ├── saju.js                    # lunar-javascript 기반 만세력 계산
+│   ├── fallbacks.js               # API 실패 시 더미 데이터 (12종)
+│   ├── clickerMessages.js         # 클리커/오늘의 한 마디 풀 (41종)
+│   └── fortuneCookieMessages.js   # 운세 로또 지혜 메시지 풀 (38종)
 ├── views/
-│   ├── HomeView.vue         # 히어로 + CTA + 오늘의 한 마디
+│   ├── HomeView.vue         # 히어로 + CTA + 오늘의 한 마디 + 미니게임 입구
 │   ├── PalmReadingView.vue
 │   ├── SajuView.vue
 │   ├── MisfortuneView.vue
-│   └── ClickerView.vue      # 운세 클리커 미니게임
+│   ├── ClickerView.vue      # 운세 클리커 미니게임
+│   └── LottoView.vue        # 운세 로또(포춘쿠키) 미니게임
 └── main.js
 ```
 
@@ -123,7 +128,7 @@ src/
 
 - **API 실패 fallback** — Gemini 호출이 실패하면 (rate limit, 네트워크, 파싱 오류) 미리 준비한 더미 데이터로 자동 대체. 사용자에겐 결과가 항상 보임.
 - **DEMO 뱃지** — fallback 결과는 결과 카드 우상단에 빨간 `⚠ DEMO` 뱃지로 명시.
-- **안내 팝업** — fallback 발생 시 한 번 떠서 한도 소진을 안내하고, 그동안 운세 클리커로 놀 수 있게 유도.
+- **안내 팝업** — fallback 발생 시 한 번 떠서 한도 소진을 안내하고, 그동안 운세 클리커(😺) 또는 운세 로또(🥠)로 놀 수 있도록 유도.
 - **만세력 계산은 로컬** — 사주 4기둥은 lunar-javascript로 결정론적 계산. API가 죽어도 명식은 항상 정확.
 
 ---
