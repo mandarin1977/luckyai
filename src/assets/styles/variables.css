@@ -7,9 +7,9 @@
   --color-text: #F5E6D3;
   --color-text-muted: rgba(245, 230, 211, 0.6);
 
-  --font-heading-en: 'Playfair Display', serif;
-  --font-heading-ko: 'Noto Serif KR', serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading-en: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', sans-serif;
+  --font-heading-ko: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', sans-serif;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', sans-serif;
   
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
