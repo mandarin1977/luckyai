@@ -44,6 +44,9 @@
       <div v-if="stage === 'loading'" class="loading-area text-center">
         <div class="spinner"></div>
         <p class="loading-text">{{ loadingMessage }}</p>
+        <transition name="tip-fade" mode="out-in">
+          <p v-if="loadingTip" :key="loadingTip" class="loading-tip">"{{ loadingTip }}"</p>
+        </transition>
       </div>
 
       <!-- 4단계: 결과 -->
@@ -128,6 +131,7 @@ import { ref } from 'vue';
 import ImageUploader from '../components/ImageUploader.vue';
 import FallbackNotice from '../components/FallbackNotice.vue';
 import { useGemini } from '../composables/useGemini';
+import { useLoadingTip } from '../composables/useLoadingTip';
 
 const { analyzePalm } = useGemini();
 
@@ -138,6 +142,8 @@ const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
 const loadingMessage = ref('우주의 기운을 모으는 중...');
+
+const { tip: loadingTip } = useLoadingTip(stage);
 
 const loadingMessagesLucky = [
   '우주의 기운을 모으는 중...',

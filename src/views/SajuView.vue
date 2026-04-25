@@ -141,6 +141,9 @@
       <div v-if="stage === 'loading'" class="loading-area text-center">
         <div class="spinner"></div>
         <p class="loading-text">{{ loadingMessage }}</p>
+        <transition name="tip-fade" mode="out-in">
+          <p v-if="loadingTip" :key="loadingTip" class="loading-tip">"{{ loadingTip }}"</p>
+        </transition>
       </div>
 
       <!-- 4단계: 결과 -->
@@ -246,6 +249,7 @@
 import { ref, computed } from 'vue';
 import FallbackNotice from '../components/FallbackNotice.vue';
 import { useGemini } from '../composables/useGemini';
+import { useLoadingTip } from '../composables/useLoadingTip';
 import { calculateSaju } from '../utils/saju';
 
 const { analyzeSaju } = useGemini();
@@ -262,6 +266,8 @@ const mode = ref('lucky');
 const isFallback = ref(false);
 const showFallbackNotice = ref(false);
 const loadingMessage = ref('사주 팔자를 뽑는 중...');
+
+const { tip: loadingTip } = useLoadingTip(stage);
 
 const todayDate = computed(() => new Date().toISOString().slice(0, 10));
 

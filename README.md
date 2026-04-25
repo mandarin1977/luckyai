@@ -47,6 +47,12 @@ LuckyAI는 Google Gemini를 활용해 사용자의 손금·사주·일상의 불
 ### 💫 두 모드 비교하기
 결과 화면에서 **"다른 모드로 보기"** 버튼 하나로 같은 입력에 대한 두 가지 해석을 즉시 비교할 수 있습니다.
 
+### 😺 운세 클리커 (`/clicker`)
+API 한도가 소진됐을 때 등장하는 미니게임. 캐릭터를 클릭하면 41종의 길조 메시지가 랜덤으로 떠오릅니다. 마일스톤 달성 시 특별 메시지도 표시됩니다.
+
+### 🌟 오늘의 한 마디 (홈)
+홈 화면에 매일 다른 길조 메시지가 표시됩니다. localStorage에 캐시되어 하루 동안 같은 메시지가 유지됩니다.
+
 ---
 
 ## 🛠 기술 스택
@@ -87,19 +93,38 @@ npm run preview
 ```
 src/
 ├── assets/styles/           # variables.css, main.css (디자인 토큰)
-├── components/              # AppHeader, Footer, StarryBackground, ImageUploader 등
+├── components/
+│   ├── AppHeader.vue        # sticky 헤더 (로고 = 홈 링크)
+│   ├── AppFooter.vue        # GitHub 링크 + 카피라이트
+│   ├── StarryBackground.vue # 별 패럴럭스 배경
+│   ├── ImageUploader.vue    # 손금 사진 업로더 (모바일 분기)
+│   ├── MobileUploadModal.vue# 모바일용 카메라/앨범 선택 (Teleport)
+│   └── FallbackNotice.vue   # API 실패 시 안내 팝업 + 클리커 진입
 ├── composables/
 │   ├── useGemini.js         # analyzePalm / analyzeSaju / translateMisfortune
-│   └── useDevice.js         # 모바일 감지
-├── router/index.js          # /, /palm, /saju, /misfortune
-├── utils/prompts.js         # 6종 프롬프트 (3 기능 × 2 모드)
+│   ├── useDevice.js         # 모바일 감지
+│   └── useLoadingTip.js     # 로딩 중 길조 메시지 회전
+├── router/index.js          # /, /palm, /saju, /misfortune, /clicker
+├── utils/
+│   ├── prompts.js           # 6종 프롬프트 (3 기능 × 2 모드)
+│   ├── saju.js              # lunar-javascript 기반 만세력 계산
+│   ├── fallbacks.js         # API 실패 시 더미 데이터 (12종)
+│   └── clickerMessages.js   # 클리커/오늘의 한 마디 메시지 풀 (41종)
 ├── views/
-│   ├── HomeView.vue
+│   ├── HomeView.vue         # 히어로 + CTA + 오늘의 한 마디
 │   ├── PalmReadingView.vue
 │   ├── SajuView.vue
-│   └── MisfortuneView.vue
+│   ├── MisfortuneView.vue
+│   └── ClickerView.vue      # 운세 클리커 미니게임
 └── main.js
 ```
+
+## 🛡️ 안전망 / 데모 친화 설계
+
+- **API 실패 fallback** — Gemini 호출이 실패하면 (rate limit, 네트워크, 파싱 오류) 미리 준비한 더미 데이터로 자동 대체. 사용자에겐 결과가 항상 보임.
+- **DEMO 뱃지** — fallback 결과는 결과 카드 우상단에 빨간 `⚠ DEMO` 뱃지로 명시.
+- **안내 팝업** — fallback 발생 시 한 번 떠서 한도 소진을 안내하고, 그동안 운세 클리커로 놀 수 있게 유도.
+- **만세력 계산은 로컬** — 사주 4기둥은 lunar-javascript로 결정론적 계산. API가 죽어도 명식은 항상 정확.
 
 ---
 

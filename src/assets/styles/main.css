@@ -135,6 +135,27 @@ button {
   flex-wrap: wrap;
 }
 
+/* 로딩 중 회전 메시지 */
+.loading-tip {
+  margin-top: var(--spacing-md);
+  max-width: 400px;
+  font-size: 0.9rem;
+  color: rgba(245, 230, 211, 0.5);
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.tip-fade-enter-active,
+.tip-fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+
+.tip-fade-enter-from,
+.tip-fade-leave-to {
+  opacity: 0;
+}
+
 /* DEMO 뱃지 — fallback 데이터 표시용 */
 .demo-badge {
   display: inline-flex;
