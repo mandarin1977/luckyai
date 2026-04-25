@@ -67,18 +67,25 @@ export function useGemini() {
     return callGemini(contents);
   };
 
-  const analyzeSaju = async (birthInfo, mode = 'lucky') => {
+  /**
+   * @param {object} saju  calculateSaju() 결과 — 계산된 4기둥 + 일간 + 오행
+   * @param {string} gender
+   * @param {'lucky'|'honest'} mode
+   */
+  const analyzeSaju = async (saju, gender, mode = 'lucky') => {
     const template = mode === 'honest' ? SAJU_HONEST_PROMPT : SAJU_PROMPT;
+    const pillarDisplay = (p) => (p ? p.display : '(시간 미상 — 시주 생략)');
+
     const prompt = template
-      .replace('{birthDate}', birthInfo.birthDate)
-      .replace('{birthHour}', birthInfo.birthHour)
-      .replace('{calendar}', birthInfo.calendar)
-      .replace('{gender}', birthInfo.gender);
-    const contents = [{
-      parts: [
-        { text: prompt }
-      ]
-    }];
+      .replaceAll('{yearPillar}', pillarDisplay(saju.yearPillar))
+      .replaceAll('{monthPillar}', pillarDisplay(saju.monthPillar))
+      .replaceAll('{dayPillar}', pillarDisplay(saju.dayPillar))
+      .replaceAll('{hourPillar}', pillarDisplay(saju.hourPillar))
+      .replaceAll('{dayStem}', `${saju.dayStem.hanzi}(${saju.dayStem.korean})`)
+      .replaceAll('{mainElement}', saju.mainElement)
+      .replaceAll('{gender}', gender);
+
+    const contents = [{ parts: [{ text: prompt }] }];
     return callGemini(contents);
   };
 

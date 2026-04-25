@@ -76,10 +76,44 @@
         </div>
       </div>
 
-      <!-- 2단계: 모드 선택 -->
-      <div v-if="stage === 'mode'" class="mode-picker">
+      <!-- 2단계: 명식 확인 + 모드 선택 -->
+      <div v-if="stage === 'mode' && saju" class="mode-picker">
+        <!-- 계산된 명식(命式) 표시 -->
+        <div class="myeongsik-card">
+          <div class="myeongsik-header">
+            <span class="myeongsik-title">명식(命式)</span>
+            <span class="myeongsik-element" :class="`elem-${elementKey(saju.mainElement)}`">
+              {{ elementIcon(saju.mainElement) }} {{ saju.mainElement }}일간 · {{ saju.dayStem.hanzi }}({{ saju.dayStem.korean }})
+            </span>
+          </div>
+          <div class="pillars-grid">
+            <div class="pillar-cell">
+              <div class="pillar-label">시주</div>
+              <div class="pillar-hanzi">{{ saju.hourPillar ? saju.hourPillar.hanzi : '—' }}</div>
+              <div class="pillar-korean">{{ saju.hourPillar ? saju.hourPillar.korean : '시간 미상' }}</div>
+            </div>
+            <div class="pillar-cell pillar-self">
+              <div class="pillar-label">일주</div>
+              <div class="pillar-hanzi">{{ saju.dayPillar.hanzi }}</div>
+              <div class="pillar-korean">{{ saju.dayPillar.korean }}</div>
+              <div class="pillar-sub">← 본인</div>
+            </div>
+            <div class="pillar-cell">
+              <div class="pillar-label">월주</div>
+              <div class="pillar-hanzi">{{ saju.monthPillar.hanzi }}</div>
+              <div class="pillar-korean">{{ saju.monthPillar.korean }}</div>
+            </div>
+            <div class="pillar-cell">
+              <div class="pillar-label">연주</div>
+              <div class="pillar-hanzi">{{ saju.yearPillar.hanzi }}</div>
+              <div class="pillar-korean">{{ saju.yearPillar.korean }}</div>
+            </div>
+          </div>
+          <p class="myeongsik-note">만세력 기준으로 계산된 정확한 명식입니다</p>
+        </div>
+
         <h2 class="picker-title text-center">어떤 해석을 원하시나요?</h2>
-        <p class="picker-subtitle text-center">같은 사주, 두 가지 관점</p>
+        <p class="picker-subtitle text-center">같은 명식, 두 가지 관점</p>
 
         <div class="mode-cards">
           <button class="mode-card mode-lucky" @click="runAnalysis('lucky')">
@@ -109,7 +143,7 @@
       </div>
 
       <!-- 4단계: 결과 -->
-      <div v-if="stage === 'result' && result" class="result-card fade-in-up">
+      <div v-if="stage === 'result' && result && saju" class="result-card fade-in-up">
         <div class="result-mode-badge" :class="`badge-${mode}`">
           {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🔯 전통 명리 모드' }}
         </div>
@@ -131,27 +165,45 @@
           </svg>
         </div>
 
-        <div v-if="result.element" class="element-badge" :class="`elem-${elementKey(result.element)}`">
-          {{ elementIcon(result.element) }} 주요 오행 · {{ result.element }}
+        <div class="element-badge" :class="`elem-${elementKey(saju.mainElement)}`">
+          {{ elementIcon(saju.mainElement) }} {{ saju.mainElement }}일간 · {{ saju.dayStem.hanzi }}({{ saju.dayStem.korean }})
         </div>
 
         <h2 class="main-fortune text-accent text-center">{{ result.mainFortune }}</h2>
 
         <div class="analysis-grid">
           <div class="analysis-item">
-            <h4>연주 <span class="pillar-sub">年柱 · 초년/조상</span></h4>
+            <h4>
+              연주
+              <span class="pillar-ganzi">{{ saju.yearPillar.hanzi }}({{ saju.yearPillar.korean }})</span>
+              <span class="pillar-sub">· 초년/조상</span>
+            </h4>
             <p>{{ result.analysis.yearPillar }}</p>
           </div>
           <div class="analysis-item">
-            <h4>월주 <span class="pillar-sub">月柱 · 청년/부모</span></h4>
+            <h4>
+              월주
+              <span class="pillar-ganzi">{{ saju.monthPillar.hanzi }}({{ saju.monthPillar.korean }})</span>
+              <span class="pillar-sub">· 청년/부모</span>
+            </h4>
             <p>{{ result.analysis.monthPillar }}</p>
           </div>
           <div class="analysis-item">
-            <h4>일주 <span class="pillar-sub">日柱 · 본인/배우자</span></h4>
+            <h4>
+              일주
+              <span class="pillar-ganzi">{{ saju.dayPillar.hanzi }}({{ saju.dayPillar.korean }})</span>
+              <span class="pillar-sub">· 본인/배우자</span>
+            </h4>
             <p>{{ result.analysis.dayPillar }}</p>
           </div>
           <div class="analysis-item">
-            <h4>시주 <span class="pillar-sub">時柱 · 말년/자녀</span></h4>
+            <h4>
+              시주
+              <span class="pillar-ganzi">
+                {{ saju.hourPillar ? `${saju.hourPillar.hanzi}(${saju.hourPillar.korean})` : '시간 미상' }}
+              </span>
+              <span class="pillar-sub">· 말년/자녀</span>
+            </h4>
             <p>{{ result.analysis.hourPillar }}</p>
           </div>
         </div>
@@ -186,6 +238,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useGemini } from '../composables/useGemini';
+import { calculateSaju } from '../utils/saju';
 
 const { analyzeSaju } = useGemini();
 
@@ -195,7 +248,8 @@ const birthHour = ref('모름');
 const calendar = ref('양력');
 const gender = ref('남');
 
-const result = ref(null);
+const saju = ref(null);         // 계산된 명식(기둥/오행/일간)
+const result = ref(null);       // Gemini 해석 결과
 const mode = ref('lucky');
 const loadingMessage = ref('사주 팔자를 뽑는 중...');
 
@@ -221,22 +275,24 @@ const loadingMessagesHonest = [
 
 const goToMode = () => {
   if (!birthDate.value) return;
-  stage.value = 'mode';
+  try {
+    saju.value = calculateSaju(birthDate.value, birthHour.value, calendar.value);
+    stage.value = 'mode';
+  } catch (error) {
+    console.error('사주 계산 실패:', error);
+    alert('날짜를 확인해주세요.');
+  }
 };
 
 const runAnalysis = async (selectedMode) => {
+  if (!saju.value) return;
   mode.value = selectedMode;
   stage.value = 'loading';
   const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
   try {
-    result.value = await analyzeSaju({
-      birthDate: birthDate.value,
-      birthHour: birthHour.value,
-      calendar: calendar.value,
-      gender: gender.value
-    }, selectedMode);
+    result.value = await analyzeSaju(saju.value, gender.value, selectedMode);
     stage.value = 'result';
   } catch (error) {
     alert('천간과 지지가 흐트러졌습니다. 다시 시도해주세요.');
@@ -249,6 +305,7 @@ const tryOtherMode = () => {
 };
 
 const reset = () => {
+  saju.value = null;
   result.value = null;
   stage.value = 'input';
 };
@@ -377,6 +434,109 @@ const elementIcon = (el) => {
 
 .toggle-btn:hover:not(.active) {
   border-color: rgba(255, 215, 0, 0.5);
+}
+
+/* 명식(命式) Card */
+.myeongsik-card {
+  background: linear-gradient(135deg, rgba(45, 27, 78, 0.5), rgba(15, 14, 46, 0.7));
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.myeongsik-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.myeongsik-title {
+  font-family: var(--font-heading-ko);
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  letter-spacing: 0.05em;
+}
+
+.myeongsik-element {
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.pillar-cell {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-sm);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pillar-cell.pillar-self {
+  border-color: var(--color-accent);
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.15);
+}
+
+.pillar-cell .pillar-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xs);
+}
+
+.pillar-cell .pillar-hanzi {
+  font-family: var(--font-heading-ko);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1.1;
+}
+
+.pillar-cell .pillar-korean {
+  font-size: 0.8rem;
+  color: rgba(245, 230, 211, 0.7);
+  margin-top: 2px;
+}
+
+.pillar-cell .pillar-sub {
+  font-size: 0.7rem;
+  color: var(--color-accent);
+  margin-top: var(--spacing-xs);
+  font-weight: 600;
+}
+
+.myeongsik-note {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .pillars-grid {
+    gap: 4px;
+  }
+  .pillar-cell {
+    padding: var(--spacing-sm) 4px;
+  }
+  .pillar-cell .pillar-hanzi {
+    font-size: 1.2rem;
+  }
+  .pillar-cell .pillar-korean {
+    font-size: 0.7rem;
+  }
 }
 
 /* Mode Picker */
@@ -640,6 +800,13 @@ const elementIcon = (el) => {
   font-size: 0.75rem;
   color: var(--color-text-muted);
   font-weight: 400;
+}
+
+.pillar-ganzi {
+  font-size: 0.85rem;
+  color: rgba(255, 215, 0, 0.75);
+  font-weight: 500;
+  font-family: var(--font-heading-ko);
 }
 
 .analysis-item p {
