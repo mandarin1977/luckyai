@@ -48,8 +48,11 @@
 
       <!-- 4단계: 결과 -->
       <div v-if="stage === 'result' && result" class="result-card fade-in-up">
-        <div class="result-mode-badge" :class="`badge-${mode}`">
-          {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🔮 전통 해석 모드' }}
+        <div class="result-header">
+          <div class="result-mode-badge" :class="`badge-${mode}`">
+            {{ mode === 'lucky' ? '🍀 LuckyAI 모드' : '🔮 전통 해석 모드' }}
+          </div>
+          <span v-if="isFallback" class="demo-badge">DEMO</span>
         </div>
 
         <div class="score-ring">
@@ -115,12 +118,15 @@
         </div>
       </div>
     </div>
+
+    <FallbackNotice :show="showFallbackNotice" @close="showFallbackNotice = false" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import ImageUploader from '../components/ImageUploader.vue';
+import FallbackNotice from '../components/FallbackNotice.vue';
 import { useGemini } from '../composables/useGemini';
 
 const { analyzePalm } = useGemini();
@@ -129,6 +135,8 @@ const stage = ref('upload'); // 'upload' | 'mode' | 'loading' | 'result'
 const imageBase64 = ref(null);
 const result = ref(null);
 const mode = ref('lucky');
+const isFallback = ref(false);
+const showFallbackNotice = ref(false);
 const loadingMessage = ref('우주의 기운을 모으는 중...');
 
 const loadingMessagesLucky = [
@@ -159,7 +167,10 @@ const startAnalysis = async (selectedMode) => {
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
   // useGemini가 fallback을 보장하므로 결과가 항상 있음.
-  result.value = await analyzePalm(imageBase64.value, selectedMode);
+  const { data, isFallback: fb } = await analyzePalm(imageBase64.value, selectedMode);
+  result.value = data;
+  isFallback.value = fb;
+  showFallbackNotice.value = fb;
   stage.value = 'result';
 };
 
@@ -170,6 +181,7 @@ const tryOtherMode = () => {
 const reset = () => {
   imageBase64.value = null;
   result.value = null;
+  isFallback.value = false;
   stage.value = 'upload';
 };
 </script>
@@ -347,10 +359,18 @@ const reset = () => {
   position: relative;
 }
 
-.result-mode-badge {
+.result-header {
   position: absolute;
   top: var(--spacing-md);
   right: var(--spacing-md);
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.result-mode-badge {
   padding: 0.3rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;

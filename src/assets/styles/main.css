@@ -135,6 +135,26 @@ button {
   flex-wrap: wrap;
 }
 
+/* DEMO 뱃지 — fallback 데이터 표시용 */
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255, 100, 100, 0.12);
+  color: #ff8a8a;
+  border: 1px solid rgba(255, 100, 100, 0.4);
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.demo-badge::before {
+  content: '⚠';
+  font-size: 0.85rem;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }

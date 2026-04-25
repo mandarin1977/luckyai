@@ -63,7 +63,9 @@ export function useGemini() {
       ]
     }];
     const result = await callGemini(contents);
-    return result ?? getPalmFallback(mode);
+    return result
+      ? { data: result, isFallback: false }
+      : { data: getPalmFallback(mode), isFallback: true };
   };
 
   const translateMisfortune = async (userInput, mode = 'lucky') => {
@@ -71,7 +73,9 @@ export function useGemini() {
     const prompt = template.replace('{userInput}', userInput);
     const contents = [{ parts: [{ text: prompt }] }];
     const result = await callGemini(contents);
-    return result ?? getMisfortuneFallback(mode);
+    return result
+      ? { data: result, isFallback: false }
+      : { data: getMisfortuneFallback(mode), isFallback: true };
   };
 
   /**
@@ -94,7 +98,9 @@ export function useGemini() {
 
     const contents = [{ parts: [{ text: prompt }] }];
     const result = await callGemini(contents);
-    return result ?? getSajuFallback(mode);
+    return result
+      ? { data: result, isFallback: false }
+      : { data: getSajuFallback(mode), isFallback: true };
   };
 
   return { analyzePalm, translateMisfortune, analyzeSaju };
