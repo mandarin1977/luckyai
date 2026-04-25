@@ -59,24 +59,25 @@ const handleFileSelect = (event) => {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
 }
 
 .bottom-sheet {
   width: 100%;
+  max-width: 420px;
   background: var(--color-bg);
-  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: var(--border-radius-xl);
   padding: var(--spacing-xl);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .sheet-header {
@@ -132,9 +133,15 @@ const handleFileSelect = (event) => {
   display: none;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+@keyframes modalPop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-fade-enter-active,
