@@ -56,6 +56,21 @@ LuckyAI는 Google Gemini를 활용해 사용자의 손금·사주·일상의 불
 ### 🌟 오늘의 한 마디 (홈)
 홈 화면에 매일 다른 길조 메시지가 표시됩니다. localStorage에 날짜별로 캐시되어 하루 동안 같은 메시지가 유지되며, '↻ 다른 한 마디' 버튼으로 즉석 변경도 가능합니다.
 
+### 📜 LuckyAI 선언문 (`/manifesto`)
+"우리는 진실을 거부합니다" — 4장 구성의 진지한 학술 톤 매니페스토. 시대 진단, 우리의 선택, 기술의 새로운 정의, 사용자에게. **이그노벨상 정신**(먼저 웃게, 다음 생각하게)에 따라 무용성을 진지하게 선언하는 페이지.
+
+### 📊 무용성 메트릭 (결과 카드 내)
+모든 결과 카드 하단에 자가 신뢰도 평가가 표시됩니다.
+- 객관적 사실 부합률: **0%**
+- 미래 예측 정확도: **측정 불가**
+- 플라시보 효과 보장률: **100%**
+- 기술적 진지함: **매우 높음**
+
+자기인식적 자조로 컨셉의 진정성을 강화합니다.
+
+### 📜 길조 인증서 (PNG 다운로드)
+손금/사주/불운 결과 카드의 **'📜 인증서 발급'** 버튼으로 인증서 모달이 열리고, "이미지로 저장"을 누르면 PNG로 다운로드됩니다 (`html-to-image` 사용). 베이지+금색 이중 보더, 빨간 도장(✿ LUCKY ✿ AI 印), LuckyAI 연구소(없음) 서명, 인증서 번호(LKY-XXXX) 포함. 친구에게 자랑하기 좋습니다.
+
 ---
 
 ## 🛠 기술 스택
@@ -63,8 +78,11 @@ LuckyAI는 Google Gemini를 활용해 사용자의 손금·사주·일상의 불
 - **Vue 3** (`<script setup>` Composition API) + **Vite**
 - **Vue Router** (SPA 라우팅, Vercel rewrite로 직링크 대응)
 - **Google Gemini API** (`gemini-2.5-flash`) — 텍스트 + 이미지 멀티모달
-- **Vanilla CSS** (CSS Variables 기반 디자인 시스템)
-- **Vercel** 배포 (자동 재배포)
+- **lunar-javascript** — 만세력 기반 사주 4기둥 결정론적 계산
+- **html-to-image** — 인증서 PNG 다운로드
+- **Pretendard Variable** — 한국어 친화 모던 산세리프
+- **Vanilla CSS** (CSS Variables 기반 디자인 시스템, 모바일 반응형)
+- **Vercel** 배포 (자동 재배포 + SPA rewrite)
 
 ### 프롬프트 전략
 같은 API, 같은 입력을 **서로 다른 system prompt**로 호출해 두 페르소나(낙관주의 도사 / 전통 학자)를 만들어냅니다. 모델 하나로 두 가지 인격을 연출하는 간단하면서도 효과적인 구조입니다.
@@ -102,12 +120,14 @@ src/
 │   ├── StarryBackground.vue # 별 패럴럭스 배경
 │   ├── ImageUploader.vue    # 손금 사진 업로더 (모바일 분기)
 │   ├── MobileUploadModal.vue# 모바일용 카메라/앨범 선택 (Teleport)
-│   └── FallbackNotice.vue   # API 실패 시 안내 팝업 + 클리커/로또 진입
+│   ├── FallbackNotice.vue   # API 실패 시 안내 팝업 + 클리커/로또 진입
+│   ├── UselessnessMetrics.vue # 결과 카드 자가 신뢰도 평가 (정직한 무용성)
+│   └── CertificateModal.vue # 길조 인증서 모달 + PNG 다운로드
 ├── composables/
 │   ├── useGemini.js         # analyzePalm / analyzeSaju / translateMisfortune
 │   ├── useDevice.js         # 모바일 감지
 │   └── useLoadingTip.js     # 로딩 중 길조 메시지 회전
-├── router/index.js          # /, /palm, /saju, /misfortune, /clicker, /lotto
+├── router/index.js          # /, /palm, /saju, /misfortune, /clicker, /lotto, /manifesto
 ├── utils/
 │   ├── prompts.js                 # 6종 프롬프트 (3 기능 × 2 모드)
 │   ├── saju.js                    # lunar-javascript 기반 만세력 계산
@@ -120,7 +140,8 @@ src/
 │   ├── SajuView.vue
 │   ├── MisfortuneView.vue
 │   ├── ClickerView.vue      # 운세 클리커 미니게임
-│   └── LottoView.vue        # 운세 로또(포춘쿠키) 미니게임
+│   ├── LottoView.vue        # 운세 로또(포춘쿠키) 미니게임
+│   └── ManifestoView.vue    # LuckyAI 선언문 (이그노벨상 정신)
 └── main.js
 ```
 

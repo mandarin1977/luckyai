@@ -875,6 +875,8 @@ const elementIcon = (el) => {
   display: flex;
   justify-content: center;
   gap: var(--spacing-xl);
+  flex-wrap: wrap;
+  row-gap: var(--spacing-md);
 }
 
 .lucky-item {
