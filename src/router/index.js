@@ -23,6 +23,11 @@ const router = createRouter({
       path: '/saju',
       name: 'saju',
       component: () => import('../views/SajuView.vue')
+    },
+    {
+      path: '/clicker',
+      name: 'clicker',
+      component: () => import('../views/ClickerView.vue')
     }
   ]
 });

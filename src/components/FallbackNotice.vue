@@ -10,7 +10,13 @@
             아래 결과는 <strong>준비된 데모 데이터</strong>로 보여드립니다.
           </p>
           <p class="sub-msg">하루가 지나면 정상적으로 다시 동작합니다 🍀</p>
-          <button class="btn btn-primary close-btn" @click="close">확인했습니다</button>
+
+          <div class="action-stack">
+            <button class="btn btn-primary" @click="goToClicker">
+              😺 그동안 운세 클리커로 놀기
+            </button>
+            <button class="btn btn-secondary" @click="close">확인했습니다</button>
+          </div>
         </div>
       </div>
     </transition>
@@ -18,13 +24,21 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
 defineProps({
   show: Boolean
 });
 
 const emit = defineEmits(['close']);
+const router = useRouter();
 
 const close = () => emit('close');
+
+const goToClicker = () => {
+  emit('close');
+  router.push('/clicker');
+};
 </script>
 
 <style scoped>
@@ -81,7 +95,13 @@ const close = () => emit('close');
   margin-bottom: var(--spacing-xl);
 }
 
-.close-btn {
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.action-stack .btn {
   width: 100%;
   min-width: 0;
 }
