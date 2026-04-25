@@ -5,13 +5,21 @@ import {
   getSajuFallback
 } from '../utils/fallbacks';
 import { useLocale } from './useLocale';
+import { useRateLimit } from './useRateLimit';
 
 export function useGemini() {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const { locale } = useLocale();
+  const { checkAndIncrement } = useRateLimit();
 
   const callGemini = async (contents) => {
+    // 방문자별 일일 throttle — 한도 초과 시 API 자체를 호출하지 않음
+    if (!checkAndIncrement()) {
+      console.warn('Visitor daily limit reached → fallback (API not called)');
+      return null;
+    }
+
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
