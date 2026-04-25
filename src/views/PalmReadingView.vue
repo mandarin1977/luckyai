@@ -158,13 +158,9 @@ const startAnalysis = async (selectedMode) => {
   const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
-  try {
-    result.value = await analyzePalm(imageBase64.value, selectedMode);
-    stage.value = 'result';
-  } catch (error) {
-    alert('운명의 기운이 잠시 흩어졌습니다. 다시 시도해주세요.');
-    stage.value = 'mode';
-  }
+  // useGemini가 fallback을 보장하므로 결과가 항상 있음.
+  result.value = await analyzePalm(imageBase64.value, selectedMode);
+  stage.value = 'result';
 };
 
 const tryOtherMode = () => {

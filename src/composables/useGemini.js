@@ -6,18 +6,22 @@ import {
   SAJU_PROMPT,
   SAJU_HONEST_PROMPT
 } from '../utils/prompts';
+import {
+  getPalmFallback,
+  getMisfortuneFallback,
+  getSajuFallback
+} from '../utils/fallbacks';
 
 export function useGemini() {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
+  // API 호출 시도. 실패 시 null 반환 (호출자가 fallback 처리).
   const callGemini = async (contents) => {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents,
           generationConfig: {
@@ -28,15 +32,20 @@ export function useGemini() {
       });
 
       if (!response.ok) {
-        throw new Error(`API 호출 실패: ${response.status}`);
+        console.warn(`Gemini API ${response.status} → fallback 사용`);
+        return null;
       }
 
       const data = await response.json();
-      const text = data.candidates[0].content.parts[0].text;
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        console.warn('Gemini 응답이 비어있음 → fallback 사용');
+        return null;
+      }
       return JSON.parse(text);
     } catch (error) {
-      console.error('Gemini API Error:', error);
-      throw error;
+      console.warn('Gemini 호출 실패 → fallback 사용:', error.message);
+      return null;
     }
   };
 
@@ -53,18 +62,16 @@ export function useGemini() {
         }
       ]
     }];
-    return callGemini(contents);
+    const result = await callGemini(contents);
+    return result ?? getPalmFallback(mode);
   };
 
   const translateMisfortune = async (userInput, mode = 'lucky') => {
     const template = mode === 'honest' ? MISFORTUNE_HONEST_PROMPT : MISFORTUNE_PROMPT;
     const prompt = template.replace('{userInput}', userInput);
-    const contents = [{
-      parts: [
-        { text: prompt }
-      ]
-    }];
-    return callGemini(contents);
+    const contents = [{ parts: [{ text: prompt }] }];
+    const result = await callGemini(contents);
+    return result ?? getMisfortuneFallback(mode);
   };
 
   /**
@@ -86,7 +93,8 @@ export function useGemini() {
       .replaceAll('{gender}', gender);
 
     const contents = [{ parts: [{ text: prompt }] }];
-    return callGemini(contents);
+    const result = await callGemini(contents);
+    return result ?? getSajuFallback(mode);
   };
 
   return { analyzePalm, translateMisfortune, analyzeSaju };

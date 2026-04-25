@@ -293,13 +293,8 @@ const runAnalysis = async (selectedMode) => {
   const messages = selectedMode === 'honest' ? loadingMessagesHonest : loadingMessagesLucky;
   loadingMessage.value = messages[Math.floor(Math.random() * messages.length)];
 
-  try {
-    result.value = await analyzeSaju(saju.value, gender.value, selectedMode);
-    stage.value = 'result';
-  } catch (error) {
-    alert('천간과 지지가 흐트러졌습니다. 다시 시도해주세요.');
-    stage.value = 'mode';
-  }
+  result.value = await analyzeSaju(saju.value, gender.value, selectedMode);
+  stage.value = 'result';
 };
 
 const tryOtherMode = () => {
