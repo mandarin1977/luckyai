@@ -68,21 +68,39 @@ const todayDate = computed(() => {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 });
 
+// localStorage는 Safari 프라이빗 모드 / 꽉 찬 storage 등에서 throw 가능.
+// 모든 접근을 보호해 한 번이라도 실패해도 화면은 정상 동작하게.
+const safeRead = (key) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeWrite = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* 무시 — 캐시 안 되어도 동작은 정상 */
+  }
+};
+
 onMounted(() => {
-  const cached = localStorage.getItem(todayKey.value);
+  const cached = safeRead(todayKey.value);
   if (cached) {
     todayMessage.value = cached;
   } else {
     const msg = CLICKER_MESSAGES[Math.floor(Math.random() * CLICKER_MESSAGES.length)];
     todayMessage.value = msg;
-    localStorage.setItem(todayKey.value, msg);
+    safeWrite(todayKey.value, msg);
   }
 });
 
 const refresh = () => {
   const newMsg = pickRandomMessage(todayMessage.value);
   todayMessage.value = newMsg;
-  localStorage.setItem(todayKey.value, newMsg);
+  safeWrite(todayKey.value, newMsg);
 };
 </script>
 
